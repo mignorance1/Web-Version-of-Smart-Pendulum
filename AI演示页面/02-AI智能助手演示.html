@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能教学助手系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 40px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .left-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 28px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #334155;
+            color: #94a3b8;
+        }
+
+        .message-content {
+            max-width: 70%;
+            background: #1e293b;
+            padding: 20px 24px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            font-size: 26px;
+            line-height: 1.8;
+            font-weight: 700;
+        }
+
+        .message.user .message-content {
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #475569;
+            margin-top: 5px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #64748b;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+            }
+            30% {
+                opacity: 1;
+            }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 13px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .input-area input:focus {
+            border-color: #3b82f6;
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quick-questions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quick-btn {
+            padding: 16px 22px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #e5e7eb;
+            border-radius: 8px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .quick-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #1e293b;
+        }
+
+        .status-bar {
+            padding: 18px 22px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-size: 24px;
+            color: #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-bar .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 24px;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #cbd5f5;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            color: #3b82f6;
+            font-weight: 800;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #111827;
+        }
+        
+        .header {
+            background: #ffffff;
+            border-bottom-color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        
+        .panel,
+        .chat-container,
+        .status-bar,
+        .quick-btn,
+        .terminal,
+        .message-content {
+            background: #ffffff !important;
+            color: #111827;
+            border-color: #e2e8f0 !important;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #000000;
+            font-size: 18px;
+        }
+        
+        .message.user .message-content {
+            background: #eef2ff !important;
+            color: #000000;
+        }
+        
+        .message.ai .message-content {
+            background: #fef2f2 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AI 智能教学助手系统</h1>
+        <p>基于GLM-4大语言模型 | 知识库检索增强</p>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
+                <div class="panel-title">对话窗口</div>
+                <div class="chat-container" id="chatContainer">
+                    <div class="message ai">
+                        <div class="message-avatar">AI</div>
+                        <div>
+                            <div class="message-content">
+                                系统初始化完成。我是智能教学助手，可以为您解答实验操作、物理原理、数据分析等问题。请输入您的问题。
+                            </div>
+                            <div class="message-time">系统消息</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="messageInput" placeholder="输入问题..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel">
+                <div class="panel-title">系统状态</div>
+                <div class="status-bar">
+                    <span>GLM-4 在线</span>
+                    <div class="status-dot"></div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <div class="stat-row">
+                        <span class="stat-label">模型版本</span>
+                        <span class="stat-value">GLM-4</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">响应延迟</span>
+                        <span class="stat-value" id="latency">0ms</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">知识库条目</span>
+                        <span class="stat-value">200+</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">检索准确率</span>
+                        <span class="stat-value">96%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="flex: 1;">
+                <div class="panel-title">快捷问题</div>
+                <div class="quick-questions">
+                    <button class="quick-btn" onclick="askQuestion('如何调整摆长')">如何调整摆长</button>
+                    <button class="quick-btn" onclick="askQuestion('为什么小摆角才近似简谐运动')">为什么小摆角才近似简谐运动</button>
+                    <button class="quick-btn" onclick="askQuestion('重力加速度误差大怎么办')">重力加速度误差大怎么办</button>
+                    <button class="quick-btn" onclick="askQuestion('如何进行数据分析')">如何进行数据分析</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isProcessing = false;
+
+        const responses = {
+            '如何调整摆长': '调整摆长操作步骤：\n\n增长摆长：同时按下「升推杆」(n2)+「放摆线」(m1)按钮，推杆抬升同时电机放线，确保小球在视野内。\n\n缩短摆长：同时按下「降推杆」(n1)+「收摆线」(m2)按钮，推杆下降同时电机收线，使小球位于光电门中心。\n\n松开按钮后系统自动发送停止指令(m0/n0)。',
+            '为什么小摆角才近似简谐运动': '这涉及到运动方程的近似：\n\n单摆运动方程：d²θ/dt² = -(g/L)sinθ\n\n当角度θ很小时(通常<5°)，有近似关系：sinθ ≈ θ(弧度)\n\n此时方程简化为：d²θ/dt² = -(g/L)θ\n\n这是标准简谐振动方程，周期 T = 2π√(L/g)\n\n如果θ较大，sinθ与θ差异显著，运动不再是简谐振动。建议实验中将初始摆角控制在5°以内。',
+            '重力加速度误差大怎么办': '误差来源诊断：\n\n1. 摆角过大：检查初始摆角是否超过5°，建议控制在3-5°\n\n2. 摆长测量：确认从摆心到球心测量，使用游标卡尺精确测量\n\n3. 周期测量：单次误差大，建议测量20个周期取平均值\n\n4. 空气阻力：使用光滑金属球，减小空气阻力\n\n5. 摆动平面：确保小球沿直线摆动，避免圆锥摆\n\n按以上建议逐一排查，通常可将误差控制在3%以内。',
+            '如何进行数据分析': '数据分析流程：\n\n1. 数据采集：确保完成完整实验流程(开始实验→重置实验)\n\n2. 数据导出：点击「导出数据」按钮，获取CSV格式数据\n\n3. 可视化分析：点击「生成可视化分析」，系统自动生成T-L、T-√L、g-L关系图\n\n4. 查看拟合结果：检查R²值(>0.95为良好拟合)\n\n5. 误差分析：查看重力加速度的标准差和相对误差\n\n系统将自动完成统计分析和曲线拟合。'
+        };
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !isProcessing) {
+                sendMessage();
+            }
+        }
+
+        function askQuestion(question) {
+            if (!isProcessing) {
+                document.getElementById('messageInput').value = question;
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || isProcessing) return;
+            
+            isProcessing = true;
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            
+            addMessage(message, 'user');
+            input.value = '';
+            
+            showTypingIndicator();
+            
+            const startTime = Date.now();
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                let response = responses[message] || '检索知识库中...\n\n该问题超出预设范围，建议您：\n1. 查看系统操作手册\n2. 检查快捷键说明\n3. 联系指导教师\n\n系统持续学习中，感谢您的使用。';
+                
+                addMessage(response, 'ai');
+                
+                const latency = Date.now() - startTime;
+                document.getElementById('latency').textContent = latency + 'ms';
+                
+                isProcessing = false;
+                sendBtn.disabled = false;
+                
+            }, 1500 + Math.random() * 1000);
+        }
+
+        function addMessage(text, type) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'ai' ? 'AI' : 'U';
+            
+            const contentWrapper = document.createElement('div');
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-content';
+            bubble.textContent = text;
+            bubble.style.whiteSpace = 'pre-wrap';
+            
+            const time = document.createElement('div');
+            time.className = 'message-time';
+            time.textContent = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+            
+            contentWrapper.appendChild(bubble);
+            contentWrapper.appendChild(time);
+            
+            if (type === 'user') {
+                messageDiv.appendChild(contentWrapper);
+                messageDiv.appendChild(avatar);
+            } else {
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(contentWrapper);
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chatContainer');
+            const indicator = document.createElement('div');
+            indicator.className = 'message ai';
+            indicator.id = 'typingIndicator';
+            indicator.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            container.appendChild(indicator);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+    </script>
+</body>
+</html>

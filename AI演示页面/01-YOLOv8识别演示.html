@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLOv8目标检测系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 40px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .left-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .detection-view {
+            flex: 1;
+            background: #0f172a;
+            border: 2px solid #1e40af;
+            border-radius: 8px;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .detection-box {
+            position: absolute;
+            border: 3px solid #3b82f6;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+            transition: all 0.1s;
+        }
+
+        .detection-label {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            font-size: 11px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+            animation: scan 2s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .metric-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #3b82f6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #0f172a;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #334155;
+        }
+
+        .status-row.active {
+            border-left-color: #3b82f6;
+        }
+
+        .status-label {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .status-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .status-value.success {
+            color: #10b981;
+        }
+
+        .terminal {
+            background: #000000;
+            border: 1px solid #1e40af;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            color: #10b981;
+        }
+
+        .terminal-line {
+            margin-bottom: 4px;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+
+        .detection-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
+            font-size: 16px;
+            color: #16a34a;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+        }
+
+        .detection-info div {
+            margin-bottom: 6px;
+        }
+
+        .detection-info div:last-child {
+            margin-bottom: 0;
+        }
+
+        .detection-info span {
+            color: #16a34a;
+            font-weight: 700;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #000000;
+            font-size: 18px;
+        }
+        
+        .panel,
+        .left-panel .panel,
+        .right-panel .panel,
+        .status-row,
+        .terminal,
+        .metric-box {
+            background: #ffffff !important;
+            color: #111827;
+            border-color: #e2e8f0 !important;
+        }
+        
+        .header {
+            background: #ffffff;
+            border-bottom-color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        
+        .panel-title,
+        .status-label,
+        .status-value {
+            color: #1f2937;
+        }
+        
+        .detection-view {
+            background: #f1f5f9;
+            border-color: #cbd5f5;
+        }
+        
+        .terminal {
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>YOLOv8 目标检测系统</h1>
+        <p>实时单摆小球智能识别 | 深度学习框架</p>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="panel" style="flex: 1;">
+                <div class="panel-title">检测画面</div>
+                <div class="detection-view" id="detectionView">
+                    <div class="scan-line"></div>
+                    <div class="detection-info">
+                        <div>模型: <span>yolov8n-pendulum.pt</span></div>
+                        <div>输入: <span>640x480</span></div>
+                        <div>类别: <span>pendulum_ball</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">性能指标</div>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-value" id="confidence">0.0</div>
+                        <div class="metric-label">置信度 %</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="fps">0</div>
+                        <div class="metric-label">FPS</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="latency">0</div>
+                        <div class="metric-label">延迟 MS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel">
+                <div class="panel-title">系统状态</div>
+                <div class="status-row" id="statusModel">
+                    <span class="status-label">模型状态</span>
+                    <span class="status-value">未加载</span>
+                </div>
+                <div class="status-row" id="statusGpu">
+                    <span class="status-label">GPU加速</span>
+                    <span class="status-value">待启动</span>
+                </div>
+                <div class="status-row" id="statusDetection">
+                    <span class="status-label">检测状态</span>
+                    <span class="status-value">未运行</span>
+                </div>
+                <div class="status-row" id="statusObjects">
+                    <span class="status-label">检测目标</span>
+                    <span class="status-value">0</span>
+                </div>
+                <div style="margin-top: 15px;">
+                    <div style="font-size: 11px; color: #64748b; margin-bottom: 5px;">处理进度</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="flex: 1;">
+                <div class="panel-title">系统日志</div>
+                <div class="terminal" id="terminal">
+                    <div class="terminal-line">[SYSTEM] YOLOv8检测系统初始化</div>
+                    <div class="terminal-line">[INFO] 模型架构: YOLOv8n</div>
+                    <div class="terminal-line">[INFO] 参数量: 3.2M → 2.1M (优化后)</div>
+                    <div class="terminal-line">[INFO] 推理引擎: CUDA/CPU</div>
+                    <div class="terminal-line">[READY] 系统就绪，等待启动</div>
+                </div>
+            </div>
+
+            <button class="btn" id="startBtn" onclick="startDetection()">启动检测</button>
+        </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        let detectionInterval;
+        let frameCount = 0;
+
+        function addLog(message) {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            const timestamp = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+            line.textContent = `[${timestamp}] ${message}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            if (terminal.children.length > 50) {
+                terminal.removeChild(terminal.firstChild);
+            }
+        }
+
+        function updateStatus(id, label, value, isActive, isSuccess) {
+            const row = document.getElementById(id);
+            row.querySelector('.status-value').textContent = value;
+            if (isActive) row.classList.add('active');
+            if (isSuccess) row.querySelector('.status-value').classList.add('success');
+        }
+
+        function startDetection() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            const btn = document.getElementById('startBtn');
+            btn.disabled = true;
+            btn.textContent = '检测运行中...';
+            
+            addLog('[INIT] 加载YOLOv8模型权重');
+            updateStatus('statusModel', '', '加载中', true, false);
+            
+            setTimeout(() => {
+                addLog('[SUCCESS] 模型加载完成 (2.1MB)');
+                updateStatus('statusModel', '', '已加载', true, true);
+                
+                addLog('[INIT] 初始化CUDA加速');
+                updateStatus('statusGpu', '', '初始化中', true, false);
+                
+                setTimeout(() => {
+                    addLog('[SUCCESS] GPU加速就绪');
+                    updateStatus('statusGpu', '', '已启动', true, true);
+                    
+                    addLog('[START] 开始实时检测');
+                    updateStatus('statusDetection', '', '运行中', true, true);
+                    
+                    startDetectionLoop();
+                }, 1000);
+            }, 1500);
+        }
+
+        function startDetectionLoop() {
+            let progress = 0;
+            
+            detectionInterval = setInterval(() => {
+                frameCount++;
+                
+                progress = Math.min(100, progress + Math.random() * 5);
+                document.getElementById('progressFill').style.width = progress + '%';
+                
+                const confidence = (95 + Math.random() * 4.5).toFixed(1);
+                const fps = (33 + Math.random() * 4).toFixed(0);
+                const latency = (25 + Math.random() * 8).toFixed(0);
+                
+                document.getElementById('confidence').textContent = confidence;
+                document.getElementById('fps').textContent = fps;
+                document.getElementById('latency').textContent = latency;
+                
+                updateStatus('statusObjects', '', '1', true, true);
+                
+                updateDetectionBox();
+                
+                if (frameCount % 30 === 0) {
+                    const x = Math.floor(Math.random() * 640);
+                    const y = Math.floor(Math.random() * 480);
+                    addLog(`[DETECT] Frame${frameCount} | Conf:${confidence}% | Pos:(${x},${y})`);
+                }
+                
+                if (frameCount % 60 === 0) {
+                    const angle = (Math.random() * 30 - 15).toFixed(2);
+                    addLog(`[ANALYSIS] 角度:${angle}° | 速度:${(Math.random() * 2).toFixed(2)}m/s`);
+                }
+                
+            }, 100);
+        }
+
+        function updateDetectionBox() {
+            const view = document.getElementById('detectionView');
+            let box = view.querySelector('.detection-box');
+            
+            if (!box) {
+                box = document.createElement('div');
+                box.className = 'detection-box';
+                const label = document.createElement('div');
+                label.className = 'detection-label';
+                box.appendChild(label);
+                view.appendChild(box);
+            }
+            
+            const time = Date.now() / 1000;
+            const viewRect = view.getBoundingClientRect();
+            const centerX = viewRect.width / 2;
+            const centerY = viewRect.height / 2;
+            
+            const x = centerX + Math.sin(time) * 150 - 30;
+            const y = centerY + Math.cos(time * 0.8) * 100 - 30;
+            const size = 60;
+            
+            box.style.left = x + 'px';
+            box.style.top = y + 'px';
+            box.style.width = size + 'px';
+            box.style.height = size + 'px';
+            
+            const conf = (95 + Math.random() * 4.5).toFixed(1);
+            box.querySelector('.detection-label').textContent = `小球 ${conf}%`;
+        }
+    </script>
+</body>
+</html>

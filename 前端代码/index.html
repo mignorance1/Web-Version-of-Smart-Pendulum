@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精密单摆重力加速度测量实验平台</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <div class="nav-title">单摆数字孪生系统</div>
+    </nav>
+
+    <div class="container">
+        <!-- 左侧动画/仿真区 -->
+        <section class="animation-section">
+            <div class="animation-header">
+                <h1 class="animation-title">单摆动画</h1>
+                <div class="animation-status">
+                    <div id="runStatus" class="run-status not-running">
+                        <span class="status-dot"></span>
+                        <span class="status-text">未运行</span>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <div class="timer-display">实验时间: <span id="timer">0.00</span> 秒</div>
+                <div class="visual-scale-info"></div>
+                <canvas id="pendulumCanvas" width="1400" height="1000"></canvas>
+            </div>
+            
+            <!-- 实时数据信息板块 -->
+            <div class="pendulum-data-panel">
+                <div class="data-panel-header">
+                    <h3>实时数据</h3>
+                </div>
+                <div class="data-panel-content">
+                    <div class="data-item">
+                        <span class="data-label">摆长:</span>
+                        <span id="pendulumLengthDisplay" class="data-value">30.0 cm</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">摆角:</span>
+                        <span id="pendulumAngleDisplay" class="data-value">+0.0°</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">周期数:</span>
+                        <span id="periodCountDisplay" class="data-value">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="quick-instructions">
+                <div class="instructions-title">快捷操作说明</div>
+                <div class="instructions-list">
+                    <div class="instruction-item">左键: 设定摆心</div>
+                    <div class="instruction-item">右键: 设定坐标轴零点</div>
+                    <div class="instruction-item">z: 设置角度零点</div>
+                    <div class="instruction-item">r: 清除数据</div>
+                    <div class="instruction-item">c: 校准HSV识别</div>
+                    <div class="instruction-item">d: 删除参考点和参考角度</div>
+                    <div class="instruction-item">l: 启动/终止串口通信</div>
+                    <div class="instruction-item">x: 导出数据为json</div>
+                </div>
+            </div>
+        </section>
+        <!-- 中间控制面板 -->
+        <section class="controls-section">
+            <div class="camera-container">
+                <h3>摄像头画面</h3>
+                <div id="cameraWrapper">
+                    <img id="cameraFeed" src="http://127.0.0.1:5000/video_feed" draggable="false" />
+                    <div id="roiDiv"></div>
+                </div>
+                <div id="syncStatus">等待摄像头数据...</div>
+            </div>
+
+
+            <!-- 同步状态框已移除 -->
+        </section>
+        <!-- 右侧图表和日志区 -->
+        <section class="charts-section">
+            <!-- 实验与运动控制 - 移动到右栏最上方 -->
+            <div class="control-group">
+                <h2>实验与运动控制</h2>
+                
+                <!-- 顶部实验控制按钮 -->
+                <div class="modern-btn-group two-column">
+                    <button id="startBtn" class="modern-btn control-primary">
+                        开始实验
+                    </button>
+                    <button id="resetBtn" class="modern-btn control-primary">
+                        结束实验
+                    </button>
+                </div>
+                
+                <!-- 电磁铁控制区域 -->
+                <div class="control-section electromagnet-section">
+                    <div class="control-section-title">电磁铁控制</div>
+                    <div class="modern-btn-group grid-2x2">
+                        <button id="d1Btn" class="modern-btn control-electromagnet">电磁铁开启</button>
+                        <button id="d0Btn" class="modern-btn control-electromagnet">电磁铁关闭</button>
+                        <button id="btnUpU" class="modern-btn control-electromagnet">左移电磁铁</button>
+                        <button id="btnDownU" class="modern-btn control-electromagnet">右移电磁铁</button>
+                    </div>
+                </div>
+                
+                <!-- 摆线推杆控制区域 -->
+                <div class="control-section pendulum-section">
+                    <div class="control-section-title">摆线推杆控制</div>
+                    <div class="modern-btn-group grid-2x2">
+                        <button id="btnUpM" class="modern-btn control-pendulum">收摆线</button>
+                        <button id="btnDownM" class="modern-btn control-pendulum">放摆线</button>
+                        <button id="btnUpN" class="modern-btn control-pendulum">升推杆</button>
+                        <button id="btnDownN" class="modern-btn control-pendulum">降推杆</button>
+                    </div>
+                </div>
+                
+                <!-- 数据获取区域 -->
+                <div class="modern-btn-group two-column">
+                    <button id="getPendulumAngleBtn" class="modern-btn control-data">
+                        获取摆角数据
+                    </button>
+                    <button id="getPendulumLengthBtn" class="modern-btn control-data">
+                        获取摆长数据
+                    </button>
+                </div>
+                
+                <!-- 底部控制区域 -->
+                <div class="modern-btn-group three-column">
+                    <div class="control-input-wrapper">
+                        <input id="inputN" type="number" placeholder="1" class="modern-input control-input">
+                    </div>
+                    <button id="btnSendN" class="modern-btn control-action">设置计数次数</button>
+                    <button id="btnClear" class="modern-btn control-clear">清除</button>
+                </div>
+
+            </div>
+
+
+
+            <div class="chart-container data-flow">
+                <div class="chart-title">角度-时间曲线</div>
+                <div class="chart-canvas"><canvas id="angleChart"></canvas></div>
+            </div>
+            <div class="chart-container data-flow">
+                <div class="chart-title">小球XY位置轨迹</div>
+                <div class="chart-canvas"><canvas id="xyChart"></canvas></div>
+                <div style="margin-top: 10px;">
+                    <label style="font-size: 0.9rem; color: #94a3b8;">显示时长(秒): <span id="xyDurationValue">0.5</span></label>
+                    <input type="range" id="xyDuration" min="0.1" max="2.0" value="0.5" step="0.1" style="width: 100%; margin-top: 5px;">
+                </div>
+            </div>
+            <div class="logs-section">
+                <div class="log-container">
+                    <div class="log-title">单片机数据日志</div>
+                    <div id="serialLog" class="log-content"></div>
+                </div>
+                <div class="log-container">
+                    <div class="log-title">后端日志</div>
+                    <div id="backendLog" class="log-content"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div id="keyToast"></div>
+    <script>
+      // 移除表情符号函数
+      function removeEmojis(text) {
+        if (!text || typeof text !== 'string') return text || '';
+        try {
+          return text.replace(/[\p{Emoji_Presentation}\p{Emoji}\u200D]+/gu, '');
+        } catch (error) {
+          // 如果正则表达式不支持，返回原文本
+          return text;
+        }
+      }
+      
+      // 简单的全局错误处理器，忽略第三方扩展错误
+      window.addEventListener('error', function(event) {
+        if (event.filename && event.filename.includes('content_scripts.umd.min.js')) {
+          console.warn('忽略第三方扩展错误:', event.message);
+          event.preventDefault();
+          event.stopPropagation();
+          return true;
+        }
+      });
+      
+      // 捕获未处理的Promise拒绝
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && event.reason.stack && event.reason.stack.includes('content_scripts.umd.min.js')) {
+          console.warn('忽略第三方扩展Promise错误:', event.reason);
+          event.preventDefault();
+          event.stopPropagation();
+          return true;
+        }
+      });
+      
+      document.addEventListener('DOMContentLoaded', removeEmojis);
+    </script>
+    <script src="js/chart.min.js"></script>
+    <script type="module" src="js/websocket-client.js"></script>
+    <script type="module" src="js/ai-assistant.js"></script>
+    <script type="module" src="js/voice-assistant.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html> 

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI数据分析引擎</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 40px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .left-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .pipeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pipeline-step {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-left: 4px solid #334155;
+            border-radius: 6px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .pipeline-step.active {
+            border-left-color: #3b82f6;
+            background: #1e293b;
+        }
+
+        .pipeline-step.complete {
+            border-left-color: #10b981;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .step-status {
+            font-size: 14px;
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .step-status.active {
+            color: #3b82f6;
+        }
+
+        .step-status.complete {
+            color: #10b981;
+        }
+
+        .step-progress {
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .step-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+            transition: width 0.5s;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .result-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            padding: 20px;
+            border-radius: 6px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s;
+        }
+
+        .result-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #3b82f6;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .result-detail {
+            font-size: 12px;
+            color: #64748b;
+            padding-top: 10px;
+            border-top: 1px solid #334155;
+        }
+
+        .terminal {
+            background: #000000;
+            border: 1px solid #1e40af;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 250px;
+            overflow-y: auto;
+            color: #10b981;
+        }
+
+        .terminal-line {
+            margin-bottom: 4px;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 12px;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #64748b;
+        }
+
+        .stat-value {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #000000;
+            font-size: 18px;
+        }
+        
+        .header {
+            background: #ffffff;
+            border-bottom-color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        
+        .panel,
+        .pipeline-step,
+        .result-card,
+        .terminal,
+        .stat-row {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            color: #111827;
+        }
+        
+        .pipeline-step.active {
+            border-left-color: #2563eb !important;
+        }
+        
+        .pipeline-step.complete {
+            border-left-color: #10b981 !important;
+        }
+        
+        .result-card {
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AI 数据分析引擎</h1>
+        <p>机器学习驱动 | 自动化数据处理与分析</p>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="panel">
+                <div class="panel-title">分析流程</div>
+                <div class="pipeline-container">
+                    <div class="pipeline-step" id="step1">
+                        <div class="step-header">
+                            <span class="step-title">1. 数据清洗与预处理</span>
+                            <span class="step-status">待处理</span>
+                        </div>
+                        <div class="step-progress">
+                            <div class="step-progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-step" id="step2">
+                        <div class="step-header">
+                            <span class="step-title">2. 异常检测 (Isolation Forest)</span>
+                            <span class="step-status">待处理</span>
+                        </div>
+                        <div class="step-progress">
+                            <div class="step-progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-step" id="step3">
+                        <div class="step-header">
+                            <span class="step-title">3. 物理规律拟合 (非线性回归)</span>
+                            <span class="step-status">待处理</span>
+                        </div>
+                        <div class="step-progress">
+                            <div class="step-progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-step" id="step4">
+                        <div class="step-header">
+                            <span class="step-title">4. 误差分析与量化</span>
+                            <span class="step-status">待处理</span>
+                        </div>
+                        <div class="step-progress">
+                            <div class="step-progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-step" id="step5">
+                        <div class="step-header">
+                            <span class="step-title">5. 生成可视化图表</span>
+                            <span class="step-status">待处理</span>
+                        </div>
+                        <div class="step-progress">
+                            <div class="step-progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">分析结果</div>
+                <div class="results-grid">
+                    <div class="result-card" id="card1">
+                        <div class="result-label">拟合优度 R²</div>
+                        <div class="result-value">--</div>
+                        <div class="result-detail">T-L 关系拟合系数</div>
+                    </div>
+
+                    <div class="result-card" id="card2">
+                        <div class="result-label">重力加速度 (m/s²)</div>
+                        <div class="result-value">--</div>
+                        <div class="result-detail">测量平均值</div>
+                    </div>
+
+                    <div class="result-card" id="card3">
+                        <div class="result-label">相对误差 (%)</div>
+                        <div class="result-value">--</div>
+                        <div class="result-detail">与理论值对比</div>
+                    </div>
+
+                    <div class="result-card" id="card4">
+                        <div class="result-label">有效数据点</div>
+                        <div class="result-value">--</div>
+                        <div class="result-detail">异常点已移除</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel">
+                <div class="panel-title">系统信息</div>
+                <div class="stat-row">
+                    <span class="stat-label">数据集大小</span>
+                    <span class="stat-value">50组 / 250点</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">分析算法</span>
+                    <span class="stat-value">ML Pipeline</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">拟合模型</span>
+                    <span class="stat-value">非线性回归</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">异常检测</span>
+                    <span class="stat-value">Isolation Forest</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">预计用时</span>
+                    <span class="stat-value">30秒</span>
+                </div>
+            </div>
+
+            <div class="panel" style="flex: 1;">
+                <div class="panel-title">处理日志</div>
+                <div class="terminal" id="terminal">
+                    <div class="terminal-line">[SYSTEM] 数据分析引擎初始化</div>
+                    <div class="terminal-line">[INFO] 机器学习模型加载完成</div>
+                    <div class="terminal-line">[INFO] Isolation Forest | 非线性回归</div>
+                    <div class="terminal-line">[READY] 系统就绪，等待数据输入</div>
+                </div>
+            </div>
+
+            <button class="btn" id="startBtn" onclick="startAnalysis()">开始分析</button>
+        </div>
+    </div>
+
+    <script>
+        let isAnalyzing = false;
+
+        function addLog(message) {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            const timestamp = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+            line.textContent = `[${timestamp}] ${message}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            if (terminal.children.length > 40) {
+                terminal.removeChild(terminal.firstChild);
+            }
+        }
+
+        function updateStep(stepNum, status, progress) {
+            const step = document.getElementById(`step${stepNum}`);
+            const statusEl = step.querySelector('.step-status');
+            const progressEl = step.querySelector('.step-progress-fill');
+            
+            step.className = `pipeline-step ${status}`;
+            statusEl.className = `step-status ${status}`;
+            progressEl.style.width = progress + '%';
+            
+            const statusText = {
+                'active': '处理中',
+                'complete': '完成',
+                '': '待处理'
+            };
+            statusEl.textContent = statusText[status] || '待处理';
+        }
+
+        async function startAnalysis() {
+            if (isAnalyzing) return;
+            
+            isAnalyzing = true;
+            const btn = document.getElementById('startBtn');
+            btn.disabled = true;
+            btn.textContent = '分析进行中...';
+            
+            addLog('[START] 启动数据分析流程');
+            addLog('[DATA] 加载实验数据: 50组 250个数据点');
+            
+            // Step 1
+            updateStep(1, 'active', 0);
+            addLog('[STEP1] 数据清洗开始');
+            await animateProgress(1, 100, 1500);
+            updateStep(1, 'complete', 100);
+            addLog('[STEP1] 完成: 移除3个异常值');
+            await sleep(300);
+            
+            // Step 2
+            updateStep(2, 'active', 0);
+            addLog('[STEP2] 运行Isolation Forest算法');
+            await animateProgress(2, 100, 2000);
+            updateStep(2, 'complete', 100);
+            addLog('[STEP2] 完成: 识别2个离群点');
+            await sleep(300);
+            
+            // Step 3
+            updateStep(3, 'active', 0);
+            addLog('[STEP3] 非线性回归拟合');
+            addLog('[CALC] T-L关系拟合中...');
+            await animateProgress(3, 100, 2500);
+            updateStep(3, 'complete', 100);
+            addLog('[STEP3] 完成: R²=0.998 拟合优度极佳');
+            
+            showResult('card1', '0.998');
+            document.querySelector('#card1 .result-detail').textContent = '线性相关系数: 0.999';
+            await sleep(300);
+            
+            // Step 4
+            updateStep(4, 'active', 0);
+            addLog('[STEP4] 误差分解与量化');
+            addLog('[CALC] 系统误差:60% 随机误差:40%');
+            await animateProgress(4, 100, 2000);
+            updateStep(4, 'complete', 100);
+            addLog('[STEP4] 完成: 误差分析');
+            
+            showResult('card2', '9.82');
+            document.querySelector('#card2 .result-detail').textContent = '标准差: ±0.15 m/s²';
+            showResult('card3', '0.31');
+            document.querySelector('#card3 .result-detail').textContent = '评价: 优秀';
+            await sleep(300);
+            
+            // Step 5
+            updateStep(5, 'active', 0);
+            addLog('[STEP5] 生成可视化图表');
+            addLog('[RENDER] T-L散点图与拟合曲线');
+            addLog('[RENDER] T-√L线性拟合图');
+            addLog('[RENDER] g-L关系图');
+            await animateProgress(5, 100, 2000);
+            updateStep(5, 'complete', 100);
+            addLog('[STEP5] 完成: 图表生成');
+            
+            showResult('card4', '247');
+            document.querySelector('#card4 .result-detail').textContent = '异常点: 3个已移除';
+            await sleep(500);
+            
+            addLog('[SUCCESS] 数据分析完成 用时:30秒');
+            addLog('[RESULT] 实验数据质量: 优秀');
+            
+            btn.disabled = false;
+            btn.textContent = '重新分析';
+            isAnalyzing = false;
+        }
+
+        function animateProgress(stepNum, target, duration) {
+            return new Promise(resolve => {
+                const step = document.getElementById(`step${stepNum}`);
+                const progressEl = step.querySelector('.step-progress-fill');
+                let current = 0;
+                const increment = target / (duration / 50);
+                
+                const interval = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(interval);
+                        resolve();
+                    }
+                    progressEl.style.width = current + '%';
+                }, 50);
+            });
+        }
+
+        function showResult(cardId, value) {
+            const card = document.getElementById(cardId);
+            card.querySelector('.result-value').textContent = value;
+            setTimeout(() => {
+                card.classList.add('show');
+            }, 100);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

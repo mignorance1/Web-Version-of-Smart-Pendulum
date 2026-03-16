@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>远程实验预约平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F172A', // 深蓝黑色
+                        secondary: '#1E40AF', // 深蓝色
+                        accent: '#3B82F6', // 亮蓝色
+                        light: '#94A3B8', // 浅蓝色
+                        neutral: '#F1F5F9', // 浅灰色
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-accent hover:bg-accent/90 text-white font-medium py-2 px-4 rounded-lg transition-all;
+            }
+            .btn-secondary {
+                @apply bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-lg transition-all;
+            }
+            .text-gradient {
+                @apply bg-clip-text text-transparent bg-gradient-to-r from-accent to-light;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-inter bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-primary text-white shadow-md fixed w-full z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="text-accent text-2xl">
+                        <i class="fa fa-flask"></i>
+                    </div>
+                    <h1 class="text-xl font-bold">单摆实验预约平台</h1>
+                </div>
+
+                <!-- 桌面导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="hover:text-accent transition-colors font-medium">首页</a>
+                    <a href="#booking" class="hover:text-accent transition-colors">预约日历</a>
+                    <a href="#equipment" class="hover:text-accent transition-colors">设备资源</a>
+                    <a href="#notifications" class="hover:text-accent transition-colors relative">
+                        通知
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                    </a>
+                </nav>
+
+                <!-- 用户区域 -->
+                <div class="flex items-center space-x-4">
+                    <button class="hidden md:block btn-primary">
+                        <i class="fa fa-user-circle mr-1"></i> 登录
+                    </button>
+
+                    <!-- 移动端菜单按钮 -->
+                    <button class="md:hidden text-white text-xl" id="mobile-menu-button">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 移动端导航菜单 -->
+        <div class="md:hidden hidden bg-primary/95 absolute w-full" id="mobile-menu">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#" class="py-2 hover:text-accent transition-colors">首页</a>
+                <a href="#booking" class="py-2 hover:text-accent transition-colors">预约日历</a>
+                <a href="#equipment" class="py-2 hover:text-accent transition-colors">设备资源</a>
+                <a href="#notifications" class="py-2 hover:text-accent transition-colors relative">
+                    通知
+                    <span class="absolute right-8 top-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                </a>
+                <button class="btn-primary w-full">
+                    <i class="fa fa-user-circle mr-1"></i> 登录
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow pt-20">
+        <!-- 英雄区域 -->
+        <section class="bg-gradient-to-br from-primary to-secondary text-white py-16 md:py-24">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-8 md:mb-0">
+                        <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight mb-4">
+                            精密单摆<br>
+                            <span class="text-gradient">重力加速度测量实验</span>
+                        </h2>
+                        <p class="text-light text-lg mb-8 max-w-lg">
+                            基于计算机视觉的单摆跟踪与周期测量，实时计算重力加速度，支持多种摆长和角度参数配置
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button class="btn-primary text-lg py-3">
+                                <i class="fa fa-calendar-plus-o mr-2"></i>立即预约
+                            </button>
+                            <button class="bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-lg transition-all text-lg">
+                                <i class="fa fa-info-circle mr-2"></i>了解更多
+                            </button>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <img src="单摆配图提示词.png" alt="学生操作物理装置" class="rounded-xl shadow-2xl max-w-full h-auto" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 统计数据 -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div class="p-6 rounded-lg bg-gray-50 shadow-sm">
+                        <div class="text-accent text-3xl mb-2">
+                            <i class="fa fa-circle-o-notch"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1" id="total-equipment">30</h3>
+                        <p class="text-gray-600">装置数量</p>
+                    </div>
+                    <div class="p-6 rounded-lg bg-gray-50 shadow-sm">
+                        <div class="text-accent text-3xl mb-2">
+                            <i class="fa fa-video-camera"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1">100+</h3>
+                        <p class="text-gray-600">实验次数</p>
+                    </div>
+                    <div class="p-6 rounded-lg bg-gray-50 shadow-sm">
+                        <div class="text-accent text-3xl mb-2">
+                            <i class="fa fa-line-chart"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1">99.8%</h3>
+                        <p class="text-gray-600">数据准确率</p>
+                    </div>
+                    <div class="p-6 rounded-lg bg-gray-50 shadow-sm">
+                        <div class="text-accent text-3xl mb-2">
+                            <i class="fa fa-clock-o"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1">0.01s</h3>
+                        <p class="text-gray-600">时间分辨率</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 预约日历 -->
+        <section id="booking" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">实验预约</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">选择实验日期、时间以及单摆参数配置，开始您的重力加速度测量实验</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl shadow-sm p-6 lg:p-8">
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <!-- 日历选择器 -->
+                        <div class="lg:w-1/2">
+                            <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-semibold text-lg" id="calendar-month-year">2025年9月</h3>
+                                    <div class="flex space-x-2">
+                                        <button class="p-2 hover:bg-gray-100 rounded-full transition-colors" id="prev-month">
+                                            <i class="fa fa-chevron-left"></i>
+                                        </button>
+                                        <button class="p-2 hover:bg-gray-100 rounded-full transition-colors" id="next-month">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 星期标题 -->
+                                <div class="grid grid-cols-7 mb-2 text-center text-sm text-gray-500">
+                                    <div>日</div>
+                                    <div>一</div>
+                                    <div>二</div>
+                                    <div>三</div>
+                                    <div>四</div>
+                                    <div>五</div>
+                                    <div>六</div>
+                                </div>
+
+                                <!-- 日历网格 -->
+                                <div class="grid grid-cols-7 gap-1 text-center" id="calendar-grid">
+                                    <!-- 日期将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+
+                            <!-- 单摆参数配置 -->
+                            <div class="bg-white rounded-lg shadow-sm p-4">
+                                <h3 class="font-semibold text-lg mb-4">单摆参数配置</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">摆长选择</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-length" value="短摆长" class="form-radio text-accent h-4 w-4" checked>
+                                                <span class="ml-2 text-sm">短摆长 (20-30cm)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-length" value="中摆长" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">中摆长 (50-80cm)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-length" value="长摆长" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">长摆长 (100-150cm)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-length" value="自定义摆长" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">自定义摆长</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">初始角度</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-angle" value="小角度" class="form-radio text-accent h-4 w-4" checked>
+                                                <span class="ml-2 text-sm">小角度 (5-10°)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-angle" value="中角度" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">中角度 (10-15°)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-angle" value="大角度" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">大角度 (15-30°)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="pendulum-angle" value="自定义角度" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">自定义角度</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">测量模式</label>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="measurement-mode" value="标准测量" class="form-radio text-accent h-4 w-4" checked>
+                                                <span class="ml-2 text-sm">标准测量 (10个周期)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="measurement-mode" value="高精度测量" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">高精度测量 (50个周期)</span>
+                                            </label>
+                                            <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="measurement-mode" value="连续测量" class="form-radio text-accent h-4 w-4">
+                                                <span class="ml-2 text-sm">连续测量 (10分钟)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div id="custom-params" class="hidden space-y-3">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">自定义摆长 (cm)</label>
+                                            <input type="number" min="10" max="200" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="请输入摆长">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">自定义角度 (度)</label>
+                                            <input type="number" min="1" max="45" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="请输入初始角度">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 时间段选择 -->
+                        <div class="lg:w-1/2">
+                            <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-semibold text-lg"><span id="selected-date">9月18日</span> 可用时间段</h3>
+                                    <span class="text-sm text-gray-500" id="selected-weekday">星期四</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="time-slots">
+                                    <!-- 时间段将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+
+                            <!-- 预约信息 -->
+                            <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                                <h3 class="font-semibold text-lg mb-4">实验信息</h3>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">实验类型</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" id="experiment-type">
+                                            <option>重力加速度测量</option>
+                                            <option>周期特性研究</option>
+                                            <option>简谐振动验证</option>
+                                            <option>非线性摆动研究</option>
+                                            <option>空气阻力影响</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">实验目的</label>
+                                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" rows="3" placeholder="请简要描述实验目的，如：验证重力加速度数值、研究周期与摆长关系等" id="experiment-purpose"></textarea>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">数据输出格式</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" id="output-format">
+                                            <option>实时数据 + 分析报告</option>
+                                            <option>仅原始数据</option>
+                                            <option>CSV格式数据</option>
+                                            <option>JSON格式数据</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 预约信息预览 -->
+                            <div class="bg-blue-50 rounded-lg shadow-sm p-4 mb-6" id="booking-preview">
+                                <h3 class="font-semibold text-lg mb-4">预约信息预览</h3>
+                                <div class="space-y-2 text-sm" id="preview-content">
+                                    <p><span class="font-medium">预约日期：</span><span id="preview-date">请选择日期</span></p>
+                                    <p><span class="font-medium">时间段：</span><span id="preview-time">请选择时间段</span></p>
+                                    <p><span class="font-medium">摆长配置：</span><span id="preview-length">短摆长 (20-30cm)</span></p>
+                                    <p><span class="font-medium">初始角度：</span><span id="preview-angle">小角度 (5-10°)</span></p>
+                                    <p><span class="font-medium">测量模式：</span><span id="preview-mode">标准测量 (10个周期)</span></p>
+                                </div>
+                            </div>
+
+                            <!-- 提交预约 -->
+                            <button class="btn-secondary w-full py-3 text-lg" id="submit-booking">
+                                <i class="fa fa-flask mr-2"></i>提交预约
+                            </button>
+
+                            <!-- 预约成功提示 -->
+                            <div class="hidden bg-green-50 border border-green-200 rounded-lg p-4 mt-4" id="booking-success">
+                                <div class="flex items-center">
+                                    <i class="fa fa-check-circle text-green-500 text-xl mr-3"></i>
+                                    <div>
+                                        <h4 class="font-medium text-green-800">预约成功！</h4>
+                                        <p class="text-sm text-green-600 mt-1">您的实验预约已提交成功，请查看预约详情。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 设备资源 -->
+        <section id="equipment" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">实验设备资源</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">查看单摆实验装置和测量设备的详细信息及运行状态</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- 设备状态统计 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-xl font-bold mb-6">设备状态统计</h3>
+                        <div class="h-64 mb-6">
+                            <canvas id="equipmentStatusChart"></canvas>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div class="p-3 bg-green-50 rounded-lg">
+                                <div class="text-green-500 font-bold text-xl" id="available-count">8</div>
+                                <div class="text-sm text-gray-500">可用装置</div>
+                            </div>
+                            <div class="p-3 bg-yellow-50 rounded-lg">
+                                <div class="text-yellow-500 font-bold text-xl" id="in-use-count">3</div>
+                                <div class="text-sm text-gray-500">使用中</div>
+                            </div>
+                            <div class="p-3 bg-red-50 rounded-lg">
+                                <div class="text-red-500 font-bold text-xl" id="maintenance-count">1</div>
+                                <div class="text-sm text-gray-500">维护中</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 单摆实验装置 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-xl font-bold mb-6">单摆实验装置</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                                <img src="1.jpg" alt="短摆长装置" class="w-16 h-16 object-cover rounded-lg mr-4" />
+                                <div class="flex-grow">
+                                    <h4 class="font-medium">短摆长装置 A1</h4>
+                                    <div class="flex items-center text-sm mt-1">
+                                        <span class="text-green-500 mr-3">
+                                            <i class="fa fa-check-circle mr-1"></i>可用
+                                        </span>
+                                        <span class="text-gray-500">
+                                            <i class="fa fa-ruler mr-1"></i>20-30cm
+                                        </span>
+                                    </div>
+                                </div>
+                                <button class="text-accent hover:text-accent/80 transition-colors">
+                                    <i class="fa fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                                <img src="2.jpg" alt="中摆长装置" class="w-16 h-16 object-cover rounded-lg mr-4" />
+                                <div class="flex-grow">
+                                    <h4 class="font-medium">中摆长装置 B2</h4>
+                                    <div class="flex items-center text-sm mt-1">
+                                        <span class="text-yellow-500 mr-3">
+                                            <i class="fa fa-clock-o mr-1"></i>使用中
+                                        </span>
+                                        <span class="text-gray-500">
+                                            <i class="fa fa-ruler mr-1"></i>50-80cm
+                                        </span>
+                                    </div>
+                                </div>
+                                <button class="text-accent hover:text-accent/80 transition-colors">
+                                    <i class="fa fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                                <img src="3.jpg" alt="长摆长装置" class="w-16 h-16 object-cover rounded-lg mr-4" />
+                                <div class="flex-grow">
+                                    <h4 class="font-medium">长摆长装置 C3</h4>
+                                    <div class="flex items-center text-sm mt-1">
+                                        <span class="text-green-500 mr-3">
+                                            <i class="fa fa-check-circle mr-1"></i>可用
+                                        </span>
+                                        <span class="text-gray-500">
+                                            <i class="fa fa-ruler mr-1"></i>100-150cm
+                                        </span>
+                                    </div>
+                                </div>
+                                <button class="text-accent hover:text-accent/80 transition-colors">
+                                    <i class="fa fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                                <img src="4.jpg" alt="摄像跟踪系统" class="w-16 h-16 object-cover rounded-lg mr-4" />
+                                <div class="flex-grow">
+                                    <h4 class="font-medium">摄像跟踪系统</h4>
+                                    <div class="flex items-center text-sm mt-1">
+                                        <span class="text-red-500 mr-3">
+                                            <i class="fa fa-wrench mr-1"></i>维护中
+                                        </span>
+                                        <span class="text-gray-500">
+                                            <i class="fa fa-video-camera mr-1"></i>120fps
+                                        </span>
+                                    </div>
+                                </div>
+                                <button class="text-accent hover:text-accent/80 transition-colors">
+                                    <i class="fa fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 通知区域 -->
+        <section id="notifications" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">最新通知</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">了解单摆实验平台的最新公告、设备维护通知和实验成果</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 rounded-xl p-6 shadow-sm card-hover">
+                        <div class="flex items-start mb-4">
+                            <div class="bg-blue-100 text-secondary p-2 rounded-lg mr-4">
+                                <i class="fa fa-microscope text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">新增高精度测量模式</h3>
+                                <p class="text-gray-500 text-sm">2023-06-08</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">新增高精度测量模式，支持50个周期的精确测量，重力加速度测量精度可达0.01m/s²。</p>
+                        <a href="#" class="text-accent hover:text-accent/80 font-medium transition-colors">
+                            查看详情 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 shadow-sm card-hover">
+                        <div class="flex items-start mb-4">
+                            <div class="bg-yellow-100 text-yellow-600 p-2 rounded-lg mr-4">
+                                <i class="fa fa-wrench text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">摄像系统维护通知</h3>
+                                <p class="text-gray-500 text-sm">2023-06-06</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">6月15日至16日，摄像跟踪系统将进行光学镜头校准，期间长摆长装置C3暂停使用。</p>
+                        <a href="#" class="text-accent hover:text-accent/80 font-medium transition-colors">
+                            查看详情 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 shadow-sm card-hover">
+                        <div class="flex items-start mb-4">
+                            <div class="bg-green-100 text-green-600 p-2 rounded-lg mr-4">
+                                <i class="fa fa-chart-line text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">实验数据成果发布</h3>
+                                <p class="text-gray-500 text-sm">2023-06-02</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">本周实验数据显示，本地区重力加速度平均值为9.801m/s²，标准偏差0.003m/s²，达到预期精度。</p>
+                        <a href="#" class="text-accent hover:text-accent/80 font-medium transition-colors">
+                            查看详情 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 帮助支持 -->
+        <section class="py-16 bg-gradient-to-br from-primary to-secondary text-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">实验技术支持</h2>
+                    <p class="text-light max-w-2xl mx-auto">如有单摆实验技术问题或需要指导，请通过以下方式联系我们</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center">
+                        <div class="text-accent text-3xl mb-4">
+                            <i class="fa fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">实验指导</h3>
+                        <p class="text-light mb-4">工作日 9:00-18:00 提供单摆实验技术指导</p>
+                        <button class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                            获取指导
+                        </button>
+                    </div>
+
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center">
+                        <div class="text-accent text-3xl mb-4">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">技术支持</h3>
+                        <p class="text-light mb-4">发送邮件至 pendulum@physics.edu.cn</p>
+                        <button class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                            发送邮件
+                        </button>
+                    </div>
+
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center">
+                        <div class="text-accent text-3xl mb-4">
+                            <i class="fa fa-book"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">实验手册</h3>
+                        <p class="text-light mb-4">下载单摆实验操作手册和数据分析指南</p>
+                        <button class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                            下载手册
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="text-accent text-2xl">
+                            <i class="fa fa-circle-o-notch"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">单摆实验预约平台</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">专业的单摆重力加速度测量实验平台，提供高精度测量和数据分析服务。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                            <i class="fa fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                            <i class="fa fa-wechat text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#booking" class="text-gray-400 hover:text-white transition-colors">实验预约</a></li>
+                        <li><a href="#equipment" class="text-gray-400 hover:text-white transition-colors">设备资源</a></li>
+                        <li><a href="#notifications" class="text-gray-400 hover:text-white transition-colors">最新通知</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold mb-4">帮助中心</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">实验指南</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">设备使用说明</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">数据分析教程</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">实验报告模板</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold mb-4">联系我们</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker text-accent mt-1 mr-3"></i>
+                            <span class="text-gray-400">物理实验楼 305 室</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone text-accent mr-3"></i>
+                            <span class="text-gray-400">010-12345678</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope text-accent mr-3"></i>
+                            <span class="text-gray-400">pendulum@physics.edu.cn</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-clock-o text-accent mr-3"></i>
+                            <span class="text-gray-400">周一至周五 8:00-20:00</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-6 text-center text-gray-500 text-sm">
+                <p>© 2023 单摆实验预约平台 版权所有 | 物理实验教学中心</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 预约信息展示界面 -->
+    <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <!-- 模态框头部 -->
+            <div class="bg-primary text-white p-6 rounded-t-lg">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">预约信息确认</h3>
+                    <button id="close-modal" class="text-white hover:text-gray-300 transition-colors">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 模态框内容 -->
+            <div class="p-6">
+                <!-- 预约成功提示 -->
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fa fa-check-circle text-green-500 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-green-800 text-lg">预约成功！</h4>
+                            <p class="text-sm text-green-600 mt-1">您的实验预约已提交成功，预约信息如下：</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 预约详细信息 -->
+                <div class="space-y-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-lg mb-3">预约基本信息</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium text-gray-700">预约编号：</span>
+                                <span id="modal-booking-id" class="text-gray-600"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">预约时间：</span>
+                                <span id="modal-booking-time" class="text-gray-600"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">实验日期：</span>
+                                <span id="modal-experiment-date" class="text-gray-600"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">实验时段：</span>
+                                <span id="modal-time-slot" class="text-gray-600"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-lg mb-3">实验配置信息</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium text-gray-700">实验类型：</span>
+                                <span id="modal-experiment-type" class="text-gray-600"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">摆长配置：</span>
+                                <span id="modal-pendulum-length" class="text-gray-600"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">初始角度：</span>
+                                <span id="modal-pendulum-angle" class="text-gray-600"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">测量模式：</span>
+                                <span id="modal-measurement-mode" class="text-gray-600"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">数据格式：</span>
+                                <span id="modal-output-format" class="text-gray-600"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-lg mb-3">实验详情</h4>
+                        <div class="text-sm">
+                            <div class="mb-2">
+                                <span class="font-medium text-gray-700">实验目的：</span>
+                            </div>
+                            <p id="modal-experiment-purpose" class="text-gray-600 bg-white p-3 rounded border"></p>
+                        </div>
+                    </div>
+
+                    <!-- 设备状态更新提示 -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fa fa-info-circle text-blue-500 text-xl mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-blue-800">设备状态更新</h4>
+                                <p class="text-sm text-blue-600 mt-1">已为您预留实验设备，当前设备状态已更新。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex justify-end space-x-4 mt-6 pt-4 border-t">
+                    <button id="print-booking" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg transition-all">
+                        <i class="fa fa-print mr-2"></i>打印预约单
+                    </button>
+                    <button id="close-modal-btn" class="btn-secondary">
+                        <i class="fa fa-check mr-2"></i>确认关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 导航栏滚动效果
+        const navbar = document.getElementById('navbar');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2');
+                navbar.classList.remove('py-4');
+                navbar.classList.add('bg-primary/95');
+                navbar.classList.add('backdrop-blur-sm');
+            } else {
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2');
+                navbar.classList.remove('bg-primary/95');
+                navbar.classList.remove('backdrop-blur-sm');
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+
+                    // 关闭移动端菜单
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+
+        // 日历功能
+        class Calendar {
+            constructor() {
+                this.currentDate = new Date(2025, 8, 18); // 2025年9月18日
+                this.selectedDate = new Date(2025, 8, 18);
+                this.init();
+            }
+
+            init() {
+                this.renderCalendar();
+                this.attachEventListeners();
+                this.updateSelectedDate();
+                this.generateTimeSlots();
+            }
+
+            attachEventListeners() {
+                document.getElementById('prev-month').addEventListener('click', () => {
+                    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                    this.renderCalendar();
+                });
+
+                document.getElementById('next-month').addEventListener('click', () => {
+                    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                    this.renderCalendar();
+                });
+            }
+
+            renderCalendar() {
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+
+                // 更新月份年份显示
+                document.getElementById('calendar-month-year').textContent = `${year}年${month + 1}月`;
+
+                // 生成日历
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+                const calendarGrid = document.getElementById('calendar-grid');
+                calendarGrid.innerHTML = '';
+
+                // 上个月的尾部日期
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    const day = daysInPrevMonth - i;
+                    const dayElement = this.createDayElement(day, true);
+                    calendarGrid.appendChild(dayElement);
+                }
+
+                // 当前月的日期
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const isToday = year === 2025 && month === 8 && day === 18;
+                    const isSelected = year === this.selectedDate.getFullYear() &&
+                                    month === this.selectedDate.getMonth() &&
+                                    day === this.selectedDate.getDate();
+                    const dayElement = this.createDayElement(day, false, isToday, isSelected);
+                    dayElement.addEventListener('click', () => {
+                        this.selectDate(year, month, day);
+                    });
+                    calendarGrid.appendChild(dayElement);
+                }
+
+                // 下个月的开头日期
+                const totalCells = calendarGrid.children.length;
+                const remainingCells = 42 - totalCells; // 6行 x 7列
+                for (let day = 1; day <= remainingCells; day++) {
+                    const dayElement = this.createDayElement(day, true);
+                    calendarGrid.appendChild(dayElement);
+                }
+            }
+
+            createDayElement(day, isOtherMonth, isToday = false, isSelected = false) {
+                const div = document.createElement('div');
+                div.className = 'p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer';
+                div.textContent = day;
+
+                if (isOtherMonth) {
+                    div.className = 'p-2 text-gray-300';
+                    div.style.cursor = 'default';
+                } else if (isSelected) {
+                    div.className = 'p-2 bg-accent text-white rounded-full cursor-pointer';
+                }
+                // 移除了 isToday 的特殊样式，今天日期也显示为普通样式
+
+                return div;
+            }
+
+            selectDate(year, month, day) {
+                this.selectedDate = new Date(year, month, day);
+                this.renderCalendar();
+                this.updateSelectedDate();
+                this.generateTimeSlots();
+            }
+
+            updateSelectedDate() {
+                const month = this.selectedDate.getMonth() + 1;
+                const day = this.selectedDate.getDate();
+                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                const weekday = weekdays[this.selectedDate.getDay()];
+
+                document.getElementById('selected-date').textContent = `${month}月${day}日`;
+                document.getElementById('selected-weekday').textContent = weekday;
+                document.getElementById('preview-date').textContent = `${month}月${day}日`;
+            }
+
+            generateTimeSlots() {
+                const timeSlots = [
+                    { start: '08:00', end: '10:00', available: true },
+                    { start: '10:00', end: '12:00', available: true },
+                    { start: '13:00', end: '15:00', available: true },
+                    { start: '15:00', end: '17:00', available: true },
+                    { start: '17:00', end: '19:00', available: false },
+                    { start: '19:00', end: '21:00', available: true }
+                ];
+
+                const timeSlotsContainer = document.getElementById('time-slots');
+                timeSlotsContainer.innerHTML = '';
+
+                timeSlots.forEach((slot, index) => {
+                    const button = document.createElement('button');
+
+                    if (slot.available) {
+                        button.className = 'border border-green-200 bg-green-50 text-green-700 py-2 px-3 rounded-lg text-sm hover:bg-green-100 transition-colors cursor-pointer';
+                    } else {
+                        button.className = 'border border-gray-200 bg-gray-50 text-gray-400 py-2 px-3 rounded-lg text-sm cursor-not-allowed';
+                    }
+
+                    button.textContent = `${slot.start} - ${slot.end}`;
+                    button.disabled = !slot.available;
+
+                    if (slot.available) {
+                        button.addEventListener('click', () => {
+                            this.toggleTimeSlot(slot, button);
+                        });
+                    }
+
+                    timeSlotsContainer.appendChild(button);
+                });
+            }
+
+            toggleTimeSlot(slot, buttonElement) {
+                // 检查是否已经选中了这个时间段 - 使用更精确的检测
+                const isSelected = buttonElement.className.includes('border-2 border-accent') &&
+                                  buttonElement.className.includes('bg-blue-50') &&
+                                  buttonElement.className.includes('text-accent');
+
+                if (isSelected) {
+                    // 取消选中 - 恢复到默认可用状态
+                    buttonElement.className = 'border border-green-200 bg-green-50 text-green-700 py-2 px-3 rounded-lg text-sm hover:bg-green-100 transition-colors cursor-pointer';
+                    document.getElementById('preview-time').textContent = '请选择时间段';
+                    this.selectedTimeSlot = null;
+                } else {
+                    // 移除其他可用按钮的选中状态，恢复为默认状态
+                    document.querySelectorAll('#time-slots button').forEach(btn => {
+                        if (btn !== buttonElement && !btn.disabled) {
+                            btn.className = 'border border-green-200 bg-green-50 text-green-700 py-2 px-3 rounded-lg text-sm hover:bg-green-100 transition-colors cursor-pointer';
+                        }
+                        // 保持禁用按钮的样式不变
+                        if (btn.disabled) {
+                            btn.className = 'border border-gray-200 bg-gray-50 text-gray-400 py-2 px-3 rounded-lg text-sm cursor-not-allowed';
+                        }
+                    });
+
+                    // 添加选中样式
+                    buttonElement.className = 'border-2 border-accent bg-blue-50 text-accent py-2 px-3 rounded-lg text-sm font-medium cursor-pointer';
+
+                    // 更新预览
+                    document.getElementById('preview-time').textContent = `${slot.start} - ${slot.end}`;
+                    this.selectedTimeSlot = slot;
+                }
+            }
+        }
+
+        // 预约系统
+        class BookingSystem {
+            constructor() {
+                this.bookings = [];
+                this.totalEquipment = 30;
+                this.currentAvailable = 22;
+                this.currentInUse = 6;
+                this.currentMaintenance = 2;
+                this.init();
+            }
+
+            init() {
+                this.attachEventListeners();
+                this.updatePreview();
+                this.startEquipmentStatusUpdate();
+                this.updateEquipmentDisplay();
+            }
+
+            attachEventListeners() {
+                // 单摆参数变化监听
+                document.querySelectorAll('input[name="pendulum-length"]').forEach(radio => {
+                    radio.addEventListener('change', this.updatePreview.bind(this));
+                });
+
+                document.querySelectorAll('input[name="pendulum-angle"]').forEach(radio => {
+                    radio.addEventListener('change', this.updatePreview.bind(this));
+                });
+
+                document.querySelectorAll('input[name="measurement-mode"]').forEach(radio => {
+                    radio.addEventListener('change', this.updatePreview.bind(this));
+                });
+
+                // 自定义参数显示/隐藏
+                const customLengthRadio = document.querySelector('input[name="pendulum-length"][value="自定义摆长"]');
+                if (customLengthRadio) {
+                    customLengthRadio.addEventListener('change', (e) => {
+                        document.getElementById('custom-params').classList.toggle('hidden', !e.target.checked);
+                    });
+                }
+
+                // 提交预约
+                document.getElementById('submit-booking').addEventListener('click', this.submitBooking.bind(this));
+            }
+
+            updatePreview() {
+                const lengthRadio = document.querySelector('input[name="pendulum-length"]:checked');
+                const angleRadio = document.querySelector('input[name="pendulum-angle"]:checked');
+                const modeRadio = document.querySelector('input[name="measurement-mode"]:checked');
+
+                const length = lengthRadio ? lengthRadio.nextElementSibling.textContent : '';
+                const angle = angleRadio ? angleRadio.nextElementSibling.textContent : '';
+                const mode = modeRadio ? modeRadio.nextElementSibling.textContent : '';
+
+                document.getElementById('preview-length').textContent = length;
+                document.getElementById('preview-angle').textContent = angle;
+                document.getElementById('preview-mode').textContent = mode;
+            }
+
+            submitBooking() {
+                // 安全获取DOM元素
+                const selectedDate = document.getElementById('selected-date');
+                const previewTime = document.getElementById('preview-time');
+                const previewLength = document.getElementById('preview-length');
+                const previewAngle = document.getElementById('preview-angle');
+                const previewMode = document.getElementById('preview-mode');
+                const experimentType = document.getElementById('experiment-type');
+                const experimentPurpose = document.getElementById('experiment-purpose');
+                const outputFormat = document.getElementById('output-format');
+
+                const bookingData = {
+                    date: selectedDate ? selectedDate.textContent : '',
+                    time: previewTime ? previewTime.textContent : '',
+                    length: previewLength ? previewLength.textContent : '',
+                    angle: previewAngle ? previewAngle.textContent : '',
+                    mode: previewMode ? previewMode.textContent : '',
+                    experimentType: experimentType ? experimentType.value : '',
+                    purpose: experimentPurpose ? experimentPurpose.value : '',
+                    outputFormat: outputFormat ? outputFormat.value : '',
+                    bookingTime: new Date().toISOString()
+                };
+
+                // 验证必填项
+                if (!bookingData.time || bookingData.time === '请选择时间段') {
+                    alert('请选择时间段');
+                    return;
+                }
+
+                if (!bookingData.purpose.trim()) {
+                    alert('请填写实验目的');
+                    return;
+                }
+
+                // 生成预约编号
+                const bookingId = 'EXP' + Date.now().toString().slice(-8);
+                bookingData.bookingId = bookingId;
+
+                // 模拟提交预约
+                this.bookings.push(bookingData);
+
+                // 更新设备状态 - 使用中设备+1，可用设备-1
+                this.currentInUse++;
+                this.currentAvailable--;
+                this.updateEquipmentDisplay();
+                this.updateEquipmentChart();
+
+                // 显示预约信息模态框
+                this.showBookingModal(bookingData);
+
+                console.log('预约信息:', bookingData);
+            }
+
+            showBookingModal(bookingData) {
+                // 安全填充模态框数据
+                const setElementText = (id, text) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = text;
+                };
+
+                setElementText('modal-booking-id', bookingData.bookingId);
+                setElementText('modal-booking-time', new Date(bookingData.bookingTime).toLocaleString('zh-CN'));
+                setElementText('modal-experiment-date', bookingData.date);
+                setElementText('modal-time-slot', bookingData.time);
+                setElementText('modal-experiment-type', bookingData.experimentType);
+                setElementText('modal-pendulum-length', bookingData.length);
+                setElementText('modal-pendulum-angle', bookingData.angle);
+                setElementText('modal-measurement-mode', bookingData.mode);
+                setElementText('modal-output-format', bookingData.outputFormat);
+                setElementText('modal-experiment-purpose', bookingData.purpose);
+
+                // 显示模态框
+                const modal = document.getElementById('booking-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            }
+
+            hideBookingModal() {
+                const modal = document.getElementById('booking-modal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            }
+
+            updateEquipmentDisplay() {
+                const availableElement = document.getElementById('available-count');
+                const inUseElement = document.getElementById('in-use-count');
+                const maintenanceElement = document.getElementById('maintenance-count');
+
+                if (availableElement) availableElement.textContent = this.currentAvailable;
+                if (inUseElement) inUseElement.textContent = this.currentInUse;
+                if (maintenanceElement) maintenanceElement.textContent = this.currentMaintenance;
+            }
+
+            updateEquipmentChart() {
+                if (window.equipmentStatusChart) {
+                    window.equipmentStatusChart.data.datasets[0].data = [this.currentAvailable, this.currentInUse, this.currentMaintenance];
+                    window.equipmentStatusChart.update();
+                }
+            }
+
+            startEquipmentStatusUpdate() {
+                // 模拟设备状态变化
+                setInterval(() => {
+                    this.simulateEquipmentStatusChange();
+                }, 5000); // 每5秒更新一次
+            }
+
+            simulateEquipmentStatusChange() {
+                // 模拟设备状态变化，基于30个装置的总量
+                const maintenanceChange = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+                const newMaintenance = Math.max(0, Math.min(5, this.currentMaintenance + maintenanceChange));
+
+                // 调整可用和使用中的设备
+                const maintenanceDiff = newMaintenance - this.currentMaintenance;
+                this.currentMaintenance = newMaintenance;
+
+                // 随机调整使用中的设备数量
+                const useChange = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+                this.currentInUse = Math.max(1, Math.min(25, this.currentInUse + useChange));
+
+                // 计算可用设备数量
+                this.currentAvailable = this.totalEquipment - this.currentInUse - this.currentMaintenance;
+
+                // 确保数值合理
+                this.currentAvailable = Math.max(0, this.currentAvailable);
+
+                this.updateEquipmentDisplay();
+                this.updateEquipmentChart();
+            }
+        }
+
+        // 设备状态图表
+        const ctx = document.getElementById('equipmentStatusChart').getContext('2d');
+        window.equipmentStatusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['可用设备', '已预约', '维护中'],
+                datasets: [{
+                    data: [22, 6, 2], // 初始状态：22可用，6使用中，2维护中
+                    backgroundColor: [
+                        '#10B981', // 绿色
+                        '#F59E0B', // 黄色
+                        '#EF4444'  // 红色
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // 初始化系统
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const calendar = new Calendar();
+                const bookingSystem = new BookingSystem();
+
+                // 模态框事件监听 - 安全绑定
+                const closeModal = document.getElementById('close-modal');
+                if (closeModal) {
+                    closeModal.addEventListener('click', () => {
+                        bookingSystem.hideBookingModal();
+                    });
+                }
+
+                const closeModalBtn = document.getElementById('close-modal-btn');
+                if (closeModalBtn) {
+                    closeModalBtn.addEventListener('click', () => {
+                        bookingSystem.hideBookingModal();
+                    });
+                }
+
+                const printBooking = document.getElementById('print-booking');
+                if (printBooking) {
+                    printBooking.addEventListener('click', () => {
+                        window.print();
+                    });
+                }
+
+                // 点击模态框背景关闭
+                const bookingModal = document.getElementById('booking-modal');
+                if (bookingModal) {
+                    bookingModal.addEventListener('click', (e) => {
+                        if (e.target.id === 'booking-modal') {
+                            bookingSystem.hideBookingModal();
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('初始化系统时发生错误:', error);
+            }
+        });
+
+        // 添加"立即预约"按钮功能
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('立即预约')) {
+                button.addEventListener('click', () => {
+                    document.getElementById('booking').scrollIntoView({ behavior: 'smooth' });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

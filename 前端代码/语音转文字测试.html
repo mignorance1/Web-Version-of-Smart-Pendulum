@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLM-ASR 语音转文字测试</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "PingFang SC", sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 40px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.6);
+    }
+    h1 { margin-top: 0; font-size: 1.8rem; }
+    button {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      padding: 14px 26px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-right: 12px;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+    }
+    .status {
+      margin: 16px 0;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      font-size: 0.95rem;
+    }
+    .log {
+      margin-top: 24px;
+      padding: 16px;
+      min-height: 160px;
+      border-radius: 12px;
+      background: #0f172a;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      white-space: pre-wrap;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 0.95rem;
+      overflow-x: auto;
+    }
+    input[type="file"] {
+      margin-top: 12px;
+      color: #cbd5f5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GLM-ASR 语音转文字测试页</h1>
+    <p style="opacity:.85;margin-bottom:24px;">
+      支持直接录音或上传音频文件，使用 GLM-ASR 模型完成转写。
+    </p>
+
+    <div style="margin-bottom:18px;">
+      <button id="recordBtn">🎤 开始录音</button>
+      <button id="stopBtn" disabled>⏹️ 停止录音</button>
+      <button id="uploadBtn" disabled>⬆️ 上传录音</button>
+    </div>
+
+    <label style="display:block;margin-bottom:6px;">或手动选择音频文件：</label>
+    <input type="file" id="fileInput" accept="audio/*">
+
+    <div class="status" id="status">状态：就绪</div>
+    <div class="log" id="log">尚未开始测试</div>
+  </div>
+
+  <script>
+    const apiConfig = {
+      apiKey: '填入你的apikey',
+      url: 'https://open.bigmodel.cn/api/paas/v4/audio/transcriptions',
+      model: 'glm-asr',
+      temperature: 0.95
+    };
+
+    const recordBtn = document.getElementById('recordBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+
+    let mediaRecorder = null;
+    let chunks = [];
+    let lastBlob = null;
+
+    function setStatus(text) { statusEl.textContent = `状态：${text}`; }
+    function appendLog(text) {
+      const now = new Date().toLocaleTimeString();
+      logEl.textContent = `[${now}] ${text}\n` + logEl.textContent;
+    }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        chunks = [];
+
+        mediaRecorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+          stream.getTracks().forEach(track => track.stop());
+          const rawBlob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+          lastBlob = new File([rawBlob], `recording_${Date.now()}.webm`, { type: rawBlob.type });
+          setStatus(`录音完成，大小 ${(lastBlob.size / 1024).toFixed(1)} KB`);
+          uploadBtn.disabled = false;
+        };
+
+        mediaRecorder.start();
+        setStatus('录音中...');
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+        uploadBtn.disabled = true;
+        appendLog('开始录音');
+      } catch (err) {
+        console.error(err);
+        setStatus('录音失败');
+        appendLog(`录音失败：${err.message}`);
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        setStatus('录音停止，准备上传');
+      }
+      stopBtn.disabled = true;
+      recordBtn.disabled = false;
+    }
+
+    async function decodeToWav(blob) {
+      const arrayBuffer = await blob.arrayBuffer();
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+      const numChannels = audioBuffer.numberOfChannels;
+      const sampleRate = audioBuffer.sampleRate;
+      const length = audioBuffer.length * numChannels * 2 + 44;
+      const buffer = new ArrayBuffer(length);
+      const view = new DataView(buffer);
+      const channels = [];
+
+      for (let i = 0; i < numChannels; i++) {
+        channels.push(audioBuffer.getChannelData(i));
+      }
+
+      function writeString(offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      }
+
+      let offset = 0;
+      writeString(offset, 'RIFF'); offset += 4;
+      view.setUint32(offset, 36 + audioBuffer.length * numChannels * 2, true); offset += 4;
+      writeString(offset, 'WAVE'); offset += 4;
+      writeString(offset, 'fmt '); offset += 4;
+      view.setUint32(offset, 16, true); offset += 4;
+      view.setUint16(offset, 1, true); offset += 2;
+      view.setUint16(offset, numChannels, true); offset += 2;
+      view.setUint32(offset, sampleRate, true); offset += 4;
+      view.setUint32(offset, sampleRate * numChannels * 2, true); offset += 4;
+      view.setUint16(offset, numChannels * 2, true); offset += 2;
+      view.setUint16(offset, 16, true); offset += 2;
+      writeString(offset, 'data'); offset += 4;
+      view.setUint32(offset, audioBuffer.length * numChannels * 2, true); offset += 4;
+
+      let sampleIndex = 0;
+      while (sampleIndex < audioBuffer.length) {
+        for (let channel = 0; channel < numChannels; channel++) {
+          const sample = Math.max(-1, Math.min(1, channels[channel][sampleIndex]));
+          view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+          offset += 2;
+        }
+        sampleIndex++;
+      }
+
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    async function ensureSupportedAudio(blob, originalName='audio') {
+      const type = blob.type || '';
+      if (type.includes('wav') || type.includes('wave') || type.includes('mp3') || type.includes('mpeg')) {
+        return { blob, filename: originalName };
+      }
+      appendLog('检测到非 WAV/MP3 格式，正在转换为 WAV...');
+      const wavBlob = await decodeToWav(blob);
+      const name = originalName.endsWith('.wav') ? originalName : `${originalName.split('.')[0]}.wav`;
+      return { blob: wavBlob, filename: name };
+    }
+
+    async function transcribeWithFile(file) {
+      if (!file) {
+        appendLog('请先录音或选择文件');
+        return;
+      }
+
+      try {
+        setStatus('上传中...');
+        appendLog(`上传文件: ${file.name}, ${(file.size / 1024).toFixed(1)} KB`);
+
+        const processed = await ensureSupportedAudio(file, file.name || 'recording.wav');
+
+        const form = new FormData();
+        form.append('model', apiConfig.model);
+        form.append('temperature', apiConfig.temperature);
+        form.append('stream', 'false');
+        form.append('file', processed.blob, processed.filename);
+
+        const response = await fetch(apiConfig.url, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiConfig.apiKey}` },
+          body: form
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errText}`);
+        }
+
+        const data = await response.json();
+        setStatus('转写完成');
+        appendLog(`识别结果：${data.text || '(返回为空)'}`);
+        if (Array.isArray(data.segments)) {
+          appendLog('分段结果：\n' + data.segments.map(seg =>
+            `${(seg.start/1000).toFixed(2)}s-${(seg.end/1000).toFixed(2)}s: ${seg.text}`
+          ).join('\n'));
+        }
+      } catch (error) {
+        console.error(error);
+        setStatus('调用失败');
+        appendLog(`调用失败：${error.message}`);
+      }
+    }
+
+    recordBtn.addEventListener('click', startRecording);
+    stopBtn.addEventListener('click', stopRecording);
+    uploadBtn.addEventListener('click', () => transcribeWithFile(lastBlob));
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        lastBlob = file;
+        uploadBtn.disabled = false;
+        setStatus(`已选择文件：${file.name}`);
+        appendLog(`选择文件：${file.name}`);
+      } else {
+        uploadBtn.disabled = true;
+      }
+    });
+  </script>
+</body>
+</html>
+

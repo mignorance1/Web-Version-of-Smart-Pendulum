@@ -1,0 +1,179 @@
+2025-09-18 20:42:27.216 | INFO     | Pendulum.WebCore:__init__:37 - 尝试初始化摄像头索引 0
+2025-09-18 20:42:32.295 | INFO     | Pendulum.WebCore:__init__:44 - 摄像头初始化成功，使用索引 0
+2025-09-18 20:42:37.975 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM11
+2025-09-18 20:42:37.975 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM11)
+2025-09-18 20:42:37.976 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_VID&000105D6_PID&000A\9&2D35CF3F&0&9C82AAE4BD69_C00000000
+2025-09-18 20:42:37.977 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.978 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM6
+2025-09-18 20:42:37.978 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM6)
+2025-09-18 20:42:37.979 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_VID&000105D6_PID&000A\9&2D35CF3F&0&EA92CA0534E4_C00000000
+2025-09-18 20:42:37.979 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.980 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM4
+2025-09-18 20:42:37.981 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM4)
+2025-09-18 20:42:37.982 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\9&2D35CF3F&0&000000000000_00000002
+2025-09-18 20:42:37.982 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.983 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM5
+2025-09-18 20:42:37.984 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM5)
+2025-09-18 20:42:37.984 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\9&2D35CF3F&0&000000000000_00000003
+2025-09-18 20:42:37.985 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.986 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM7
+2025-09-18 20:42:37.987 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM7)
+2025-09-18 20:42:37.987 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\9&2D35CF3F&0&000000000000_00000004
+2025-09-18 20:42:37.988 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.988 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM10
+2025-09-18 20:42:37.989 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM10)
+2025-09-18 20:42:37.990 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\9&2D35CF3F&0&000000000000_00000005
+2025-09-18 20:42:37.991 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.991 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM3
+2025-09-18 20:42:37.992 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM3)
+2025-09-18 20:42:37.993 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_VID&000105D6_PID&000A\9&2D35CF3F&0&3C0DF7422D81_C00000000
+2025-09-18 20:42:37.994 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.994 | INFO     | Pendulum.SerialConncet:listPorts:37 - 设备名称: COM8
+2025-09-18 20:42:37.996 | INFO     | Pendulum.SerialConncet:listPorts:38 - 描述信息: 蓝牙链接上的标准串行 (COM8)
+2025-09-18 20:42:37.997 | INFO     | Pendulum.SerialConncet:listPorts:39 - 硬件ID:   BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_VID&000105D6_PID&000A\9&2D35CF3F&0&6D7B8BA295D3_C00000000
+2025-09-18 20:42:37.997 | INFO     | Pendulum.SerialConncet:listPorts:40 - ------------------------------
+2025-09-18 20:42:37.998 | WARNING  | Pendulum.SerialConncet:auto_select_CH340:106 - 串口设置未发生改变: COM3
+2025-09-18 20:42:38.589 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:42:51.467 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:42:51.484 | INFO     | Pendulum.WebCore:pendulum_roi:132 - 网页ROI数据已接收: x=353, y=630, w=29, h=58
+2025-09-18 20:42:51.489 | INFO     | Pendulum.PendulumCore:calibrate:45 - 🔍 HSV校准调试信息:
+2025-09-18 20:42:51.490 | INFO     | Pendulum.PendulumCore:calibrate:46 -   原始ROI: (353, 630, 29, 58)
+2025-09-18 20:42:51.492 | INFO     | Pendulum.PendulumCore:calibrate:47 -   HSV图像尺寸: 720x1280
+2025-09-18 20:42:51.493 | INFO     | Pendulum.PendulumCore:calibrate:57 -   调整后ROI: (353, 630, 29, 58)
+2025-09-18 20:42:51.494 | INFO     | Pendulum.PendulumCore:calibrate:60 -   ROI区域大小: (58, 29, 3)
+2025-09-18 20:42:51.497 | INFO     | Pendulum.PendulumCore:calibrate:71 -   ROI区域平均HSV: (6.8311533888228295, 81.65219976218786, 187.47265160523185)
+2025-09-18 20:42:51.498 | INFO     | Pendulum.PendulumCore:calibrate:72 -   ROI区域HSV标准差: [23.49498451  4.76545841 15.80535668]
+2025-09-18 20:42:51.499 | INFO     | Pendulum.PendulumCore:calibrate:79 -   计算的容差: [46.98996901 30.         31.61071335]
+2025-09-18 20:42:51.500 | INFO     | Pendulum.PendulumCore:calibrate:88 -   初始HSV阈值: 下限=[0, 51, 155], 上限=[53, 111, 219]
+2025-09-18 20:42:51.501 | INFO     | Pendulum.PendulumCore:calibrate:103 - ✅ HSV校准成功: ROI=(353,630,29,58)
+2025-09-18 20:42:51.503 | INFO     | Pendulum.PendulumCore:calibrate:105 -   最终HSV阈值: 下限=[0, 51, 155], 上限=[53, 111, 219]
+2025-09-18 20:42:51.504 | INFO     | Pendulum.PendulumAPP:_checkWebRoi:186 - 网页ROI HSV校准成功: x=353, y=630, w=29, h=58
+2025-09-18 20:42:51.505 | INFO     | Pendulum.PendulumAPP:_checkWebRoi:187 - 新的HSV阈值: 下限=[0, 51, 155], 上限=[53, 111, 219]
+2025-09-18 20:42:53.476 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:43:06.292 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:43:08.300 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:43:21.113 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:43:23.122 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:43:32.480 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:32.617 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:32.742 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:32.867 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:32.990 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:33.123 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:33.273 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:33.395 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:33.527 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:33.664 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:33.814 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:33.952 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:34.079 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:34.220 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:34.343 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:34.496 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:34.620 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:34.760 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:34.885 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.028 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.165 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.293 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.431 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.556 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.681 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.821 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:35.937 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:43:35.962 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:36.099 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:36.225 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:36.350 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:36.495 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:36.635 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:36.774 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:36.914 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:37.051 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:37.190 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:37.311 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:37.437 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:37.589 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:37.948 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:43:44.775 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:44.929 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:45.069 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:45.195 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:45.336 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:45.477 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:45.612 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:45.745 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:45.878 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.006 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.150 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.292 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.432 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.565 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.692 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.836 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:46.971 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:47.098 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:47.241 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:47.383 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:47.522 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:47.672 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:47.798 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:47.922 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.050 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.186 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.326 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.450 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.581 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.715 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.841 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:48.976 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:49.132 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:49.292 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:49.419 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:49.572 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:49.714 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:49.850 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:49.988 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:50.131 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:50.267 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:50.408 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:50.536 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:50.675 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:50.763 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:43:50.816 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:50.958 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:51.095 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:51.231 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:51.364 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:51.499 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:51.653 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:51.781 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:51.905 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:52.048 | WARNING  | Pendulum.WebCore:get_pendulum_length:227 - ⚠️ API返回异常摆长数据: 120.000000 cm，使用默认值
+2025-09-18 20:43:52.774 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:44:05.589 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:44:07.599 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:44:20.416 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:44:22.430 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:44:35.245 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:44:37.259 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:44:50.074 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:44:52.080 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:45:04.895 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:45:06.906 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:45:19.721 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:45:21.733 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:45:34.546 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:45:36.551 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:45:49.366 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:45:51.380 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:46:04.196 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:46:06.203 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:46:19.017 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:46:21.027 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:46:33.839 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:46:35.853 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:46:48.669 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:46:50.682 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...
+2025-09-18 20:47:03.498 | ERROR    | Pendulum.SerialConncet:_run:164 - [失败] 连接失败：could not open port 'COM3': OSError(22, '信号灯超时时间已到', None, 121)
+2025-09-18 20:47:05.511 | INFO     | Pendulum.SerialConncet:_run:160 - [串口] 尝试连接 COM3...

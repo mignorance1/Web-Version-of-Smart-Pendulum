@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI实验报告生成系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 40px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .left-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stage-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .stage {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .stage-number {
+            width: 40px;
+            height: 40px;
+            background: #334155;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .stage.active .stage-number {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .stage.complete .stage-number {
+            background: #10b981;
+            color: white;
+        }
+
+        .stage-label {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .stage.active .stage-label {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .stage.complete .stage-label {
+            color: #10b981;
+        }
+
+        .stage-connector {
+            height: 2px;
+            background: #334155;
+            flex: 0.5;
+            margin: 0 10px;
+            margin-bottom: 30px;
+        }
+
+        .progress-main {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .circular-progress {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .circular-progress .bg {
+            stroke: #334155;
+        }
+
+        .circular-progress .progress {
+            stroke: #3b82f6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 42px;
+            font-weight: 700;
+            color: #3b82f6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .progress-subtitle {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .content-preview {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .preview-section:last-child {
+            border-bottom: none;
+        }
+
+        .preview-section.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .preview-section h4 {
+            color: #3b82f6;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .preview-section p {
+            color: #94a3b8;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .content-preview::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content-preview::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .content-preview::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-panel {
+            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-panel.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-panel h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .success-panel p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 12px;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #000000;
+            font-size: 18px;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #111827;
+        }
+        
+        .header {
+            background: #ffffff;
+            border-bottom-color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        
+        .panel,
+        .progress-main,
+        .content-preview,
+        .success-panel,
+        .stat-row {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            color: #111827;
+        }
+        
+        .content-preview {
+            box-shadow: inset 0 0 0 rgba(0,0,0,0);
+        }
+        
+        .preview-section {
+            border-color: #e2e8f0;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #64748b;
+        }
+
+        .stat-value {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AI 实验报告生成系统</h1>
+        <p>自然语言生成技术 | 自动化报告编译</p>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="panel">
+                <div class="panel-title">生成流程</div>
+                <div class="stage-flow">
+                    <div class="stage" id="stage1">
+                        <div class="stage-number">1</div>
+                        <div class="stage-label">数据整理</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                    <div class="stage" id="stage2">
+                        <div class="stage-number">2</div>
+                        <div class="stage-label">AI分析</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                    <div class="stage" id="stage3">
+                        <div class="stage-number">3</div>
+                        <div class="stage-label">文字生成</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                    <div class="stage" id="stage4">
+                        <div class="stage-number">4</div>
+                        <div class="stage-label">图表嵌入</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                    <div class="stage" id="stage5">
+                        <div class="stage-number">5</div>
+                        <div class="stage-label">报告导出</div>
+                    </div>
+                </div>
+
+                <div class="progress-main">
+                    <div class="progress-title" id="progressTitle">准备生成实验报告</div>
+                    
+                    <div class="circular-progress">
+                        <svg width="180" height="180">
+                            <circle class="bg" cx="90" cy="90" r="82"></circle>
+                            <circle class="progress" cx="90" cy="90" r="82" 
+                                    stroke-dasharray="515.22" 
+                                    stroke-dashoffset="515.22"
+                                    id="progressCircle"></circle>
+                        </svg>
+                        <div class="progress-text" id="progressText">0%</div>
+                    </div>
+                    
+                    <div class="progress-subtitle" id="progressSubtitle">点击下方按钮开始</div>
+                </div>
+            </div>
+
+            <div class="panel" style="flex: 1;">
+                <div class="panel-title">报告内容</div>
+                <div class="content-preview" id="contentPreview">
+                    <p style="text-align: center; color: #64748b;">报告内容将在生成时实时显示</p>
+                </div>
+            </div>
+
+            <div class="success-panel" id="successPanel">
+                <h3>报告生成完成</h3>
+                <p>专业实验报告已生成 | 格式: HTML | 大小: 2.5MB</p>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel">
+                <div class="panel-title">系统信息</div>
+                <div class="stat-row">
+                    <span class="stat-label">生成引擎</span>
+                    <span class="stat-value">NLG v2.0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">数据源</span>
+                    <span class="stat-value">50组实验</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">报告格式</span>
+                    <span class="stat-value">HTML</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">包含图表</span>
+                    <span class="stat-value">3张</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">预计用时</span>
+                    <span class="stat-value">30秒</span>
+                </div>
+            </div>
+
+            <button class="btn" id="generateBtn" onclick="startGeneration()">生成报告</button>
+        </div>
+    </div>
+
+    <script>
+        let isGenerating = false;
+
+        const reportSections = [
+            { title: '实验摘要', content: '本次实验共完成50组有效测量，摆长范围20-100cm，测得重力加速度g=9.82±0.15 m/s²，相对误差0.31%，实验结果优秀。' },
+            { title: '数据表格', content: '编号 | 摆长(cm) | 周期(s) | 重力加速度(m/s²)\n001 | 30.0 | 1.10 | 9.78\n002 | 50.0 | 1.42 | 9.85' },
+            { title: '数据分析', content: '拟合关系式 T=2.006√L，拟合优度R²=0.998，数据与理论高度吻合。T-√L线性拟合R²=0.996，线性度优秀。' },
+            { title: '可视化图表', content: '[T-L关系图] [T-√L线性图] [g-L稳定性图] 图表已嵌入报告' },
+            { title: '误差分析', content: '系统误差±0.12 m/s²(60%) 随机误差±0.08 m/s²(40%) 总误差±0.15 m/s² 相对误差0.31%' },
+            { title: '改进建议', content: '1.控制摆角<5° 2.精确测量摆长 3.增加测量次数 4.减小空气阻力' }
+        ];
+
+        function updateStage(stageNum, status) {
+            const stage = document.getElementById(`stage${stageNum}`);
+            stage.className = `stage ${status}`;
+        }
+
+        function updateProgress(percent, title, subtitle) {
+            const circumference = 2 * Math.PI * 82;
+            const offset = circumference - (percent / 100) * circumference;
+            document.getElementById('progressCircle').style.strokeDashoffset = offset;
+            document.getElementById('progressText').textContent = percent + '%';
+            document.getElementById('progressTitle').textContent = title;
+            document.getElementById('progressSubtitle').textContent = subtitle;
+        }
+
+        function showPreviewSection(index) {
+            const preview = document.getElementById('contentPreview');
+            const section = reportSections[index];
+            
+            if (index === 0) {
+                preview.innerHTML = '';
+            }
+            
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'preview-section';
+            sectionDiv.innerHTML = `
+                <h4>${section.title}</h4>
+                <p>${section.content}</p>
+            `;
+            preview.appendChild(sectionDiv);
+            preview.scrollTop = preview.scrollHeight;
+            
+            setTimeout(() => {
+                sectionDiv.classList.add('show');
+            }, 100);
+        }
+
+        async function startGeneration() {
+            if (isGenerating) return;
+            
+            isGenerating = true;
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+            
+            document.getElementById('successPanel').classList.remove('show');
+            
+            // Stage 1
+            updateStage(1, 'active');
+            updateProgress(10, '数据整理中', '读取实验数据');
+            await sleep(800);
+            updateProgress(15, '数据整理完成', '准备AI分析');
+            updateStage(1, 'complete');
+            await sleep(300);
+            
+            // Stage 2
+            updateStage(2, 'active');
+            updateProgress(25, 'AI数据分析', '运行机器学习算法');
+            await sleep(1000);
+            updateProgress(40, 'AI分析完成', '物理规律拟合');
+            updateStage(2, 'complete');
+            showPreviewSection(0);
+            await sleep(300);
+            
+            // Stage 3
+            updateStage(3, 'active');
+            updateProgress(50, 'AI文字生成', 'NLG引擎运行');
+            await sleep(800);
+            showPreviewSection(1);
+            updateProgress(60, '生成数据表格', '自动排版');
+            await sleep(700);
+            showPreviewSection(2);
+            updateProgress(70, '生成文字分析', 'AI撰写中');
+            await sleep(700);
+            updateStage(3, 'complete');
+            showPreviewSection(3);
+            await sleep(300);
+            
+            // Stage 4
+            updateStage(4, 'active');
+            updateProgress(80, '图表嵌入', 'Chart.js渲染');
+            await sleep(900);
+            showPreviewSection(4);
+            updateProgress(90, '图表嵌入完成', '准备导出');
+            updateStage(4, 'complete');
+            showPreviewSection(5);
+            await sleep(300);
+            
+            // Stage 5
+            updateStage(5, 'active');
+            updateProgress(95, '报告编译', 'HTML渲染');
+            await sleep(700);
+            updateProgress(100, '生成完成', '报告就绪');
+            updateStage(5, 'complete');
+            await sleep(300);
+            
+            document.getElementById('successPanel').classList.add('show');
+            
+            btn.disabled = false;
+            btn.textContent = '重新生成';
+            isGenerating = false;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>语音控制摆长演示</title>
+  <style>
+    body {
+      background: #f8fafc;
+      font-family: "PingFang SC", "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #000000;
+      font-size: 18px;
+    }
+    .panel {
+      width: 800px;
+      height: 420px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .title {
+      color: #000000;
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #000000;
+      font-size: 17px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .chat {
+      flex: 1;
+      background: #f1f5f9;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .bubble {
+      max-width: 75%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 18px;
+      line-height: 1.7;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    .user {
+      align-self: flex-end;
+      background: #dbeafe;
+      color: #0f172a;
+      border-bottom-right-radius: 6px;
+    }
+    .assistant {
+      align-self: flex-start;
+      background: #fff;
+      color: #111827;
+      border-bottom-left-radius: 6px;
+    }
+    .note {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #6b7280;
+      letter-spacing: 0.3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="header">
+      <div class="title">语音控制摆长</div>
+      <div class="status">
+        <span class="status-dot"></span>
+        实时响应
+      </div>
+    </div>
+    <div class="chat">
+      <div class="bubble user">语音：调整摆长到30厘米。</div>
+      <div class="bubble assistant">正在放摆线，将摆长从20.0厘米调整到30.0厘米。</div>
+      <div class="bubble user">语音：缩短到25厘米。</div>
+      <div class="bubble assistant">正在收摆线，将摆长从30.0厘米调整到25.0厘米。</div>
+      <div class="bubble user">语音：再调到20厘米。</div>
+      <div class="bubble assistant">摆长调整完成：当前摆长 20.0 厘米，串口已发送 m0 停止指令。</div>
+    </div>
+    <div class="note">说明：语音助手直接发送 m1/m2/m0 串口指令，实现放线与收线的精准控制。</div>
+  </div>
+</body>
+</html>
+
+

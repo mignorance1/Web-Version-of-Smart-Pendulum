@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLM-4-Voice 语音交互测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .status.recording {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status.processing {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.ready {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-record {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-record:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-record:active {
+            transform: translateY(0);
+        }
+
+        .btn-record.recording {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #d0d0d0;
+        }
+
+        .messages {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: 20%;
+        }
+
+        .message.ai {
+            background: #e3f2fd;
+            color: #1976d2;
+            margin-right: 20%;
+        }
+
+        .message.system {
+            background: #fff3e0;
+            color: #e65100;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .message-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .message-content {
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #1976d2;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 GLM-4-Voice 语音交互测试</h1>
+        <p class="subtitle">测试语音识别与AI模型交互</p>
+
+        <div class="info">
+            <div class="info-title">使用说明：</div>
+            <div>1. 点击"开始录音"按钮，允许浏览器使用麦克风</div>
+            <div>2. 说出您的指令（例如："调整摆长到20cm"）</div>
+            <div>3. 点击按钮停止录音（或等待自动停止）</div>
+            <div>4. 系统会自动转换音频为MP3格式并上传到GLM-4-Voice API</div>
+            <div>5. 查看AI的响应结果</div>
+            <div style="margin-top: 10px; font-weight: 600; color: #1976d2;">
+                ✅ 本方案使用MediaRecorder直接录制音频，自动转换为MP3格式
+            </div>
+            <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                💡 提示：如需更好的MP3转换效果，可加载lamejs库（在页面中添加script标签引入）
+            </div>
+        </div>
+
+        <div id="status" class="status ready">就绪 - 点击开始录音</div>
+
+        <div class="button-group">
+            <button id="recordBtn" class="btn-record">🎤 开始录音</button>
+            <button id="clearBtn" class="btn-clear">🗑️ 清空消息</button>
+        </div>
+
+        <div class="messages" id="messages"></div>
+    </div>
+
+    <!-- 加载lamejs库用于MP3编码（必需） -->
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+    
+    <script>
+        // 配置
+        const config = {
+            apiKey: '填入你的apikey',
+            baseUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+            model: 'glm-4-voice',
+            maxTokens: undefined,
+            temperature: 0.7
+        };
+
+        // 状态管理
+        const state = {
+            mediaRecorder: null,
+            audioChunks: [],
+            audioStream: null,
+            isRecording: false,
+            isProcessing: false
+        };
+
+        // DOM元素
+        const recordBtn = document.getElementById('recordBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+
+        // 初始化
+        function init() {
+            // 检查浏览器支持 MediaRecorder
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                addMessage('系统', '❌ 浏览器不支持录音功能。请使用Chrome、Edge或Safari浏览器', 'error');
+                recordBtn.disabled = true;
+                return;
+            }
+
+            if (!window.MediaRecorder) {
+                addMessage('系统', '❌ 浏览器不支持MediaRecorder API。请使用Chrome、Edge或Safari浏览器', 'error');
+                recordBtn.disabled = true;
+                return;
+            }
+
+            // 检查是否在HTTPS或localhost环境
+            const isSecure = window.location.protocol === 'https:' || 
+                           window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
+            
+            if (!isSecure) {
+                addMessage('系统', '⚠️ 建议使用HTTPS或localhost访问，以确保录音功能正常工作', 'system');
+            }
+
+            // 按钮事件
+            recordBtn.addEventListener('click', toggleRecording);
+            clearBtn.addEventListener('click', clearMessages);
+        }
+
+        // 切换录音状态
+        function toggleRecording() {
+            if (state.isRecording) {
+                stopRecording();
+            } else {
+                if (state.isProcessing) {
+                    addMessage('系统', '正在处理上一个请求，请稍候...', 'system');
+                    return;
+                }
+                startRecording();
+            }
+        }
+
+        // 开始录音
+        async function startRecording() {
+            try {
+                addMessage('系统', '正在请求麦克风权限...', 'system');
+                
+                // 获取麦克风权限
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        channelCount: 1,      // 单声道
+                        sampleRate: 16000,     // 16kHz采样率（GLM-4-Voice推荐）
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+                
+                state.audioStream = stream;
+                state.audioChunks = [];
+                
+                // 创建MediaRecorder
+                // 尝试使用WAV格式，如果不支持则使用浏览器默认格式
+                let mimeType = 'audio/webm'; // 默认格式
+                if (MediaRecorder.isTypeSupported('audio/wav')) {
+                    mimeType = 'audio/wav';
+                } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+                    mimeType = 'audio/webm';
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4';
+                }
+                
+                state.mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+                
+                // 监听数据
+                state.mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        state.audioChunks.push(event.data);
+                    }
+                };
+                
+                // 录音结束处理
+                state.mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(state.audioChunks, { type: mimeType });
+                    addMessage('系统', `✅ 录音完成 (${(audioBlob.size / 1024).toFixed(2)} KB)`, 'system');
+                    await handleAudioBlob(audioBlob, mimeType);
+                    
+                    // 停止所有音频轨道
+                    if (state.audioStream) {
+                        state.audioStream.getTracks().forEach(track => track.stop());
+                        state.audioStream = null;
+                    }
+                };
+                
+                // 开始录音
+                state.mediaRecorder.start();
+                state.isRecording = true;
+                
+                updateStatus('录音中...', 'recording');
+                recordBtn.textContent = '🔴 正在录音（点击停止）';
+                recordBtn.classList.add('recording');
+                addMessage('系统', '✅ 录音已开始，请说话...', 'system');
+                
+            } catch (error) {
+                let errorMsg = '启动录音失败';
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorMsg = '麦克风权限被拒绝，请在浏览器设置中允许使用麦克风';
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    errorMsg = '未找到麦克风设备，请检查设备连接';
+                } else {
+                    errorMsg = `启动失败: ${error.message}`;
+                }
+                addMessage('错误', errorMsg, 'error');
+                updateStatus('录音失败', 'ready');
+            }
+        }
+
+        // 停止录音
+        function stopRecording() {
+            if (state.mediaRecorder && state.isRecording) {
+                state.mediaRecorder.stop();
+                state.isRecording = false;
+                recordBtn.textContent = '🎤 开始录音';
+                recordBtn.classList.remove('recording');
+                updateStatus('正在处理录音...', 'processing');
+            }
+        }
+
+        // 将音频转换为MP3格式（使用Web Audio API）
+        async function convertToMP3(audioBlob, mimeType) {
+            return new Promise((resolve, reject) => {
+                // 如果已经是MP3格式，直接返回
+                if (mimeType.includes('mp3') || mimeType.includes('mpeg')) {
+                    resolve(audioBlob);
+                    return;
+                }
+
+                addMessage('系统', '正在转换音频为MP3格式...', 'system');
+
+                // 创建AudioContext
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const fileReader = new FileReader();
+
+                fileReader.onload = async (e) => {
+                    try {
+                        // 解码音频数据
+                        const audioBuffer = await audioContext.decodeAudioData(e.target.result);
+                        
+                        // 创建WAV格式（作为中间格式，因为浏览器原生支持）
+                        // 注意：这里我们使用WAV，因为浏览器无法直接生成MP3
+                        // 如果API必须要求MP3，可能需要使用第三方库如lamejs
+                        const wavBlob = audioBufferToWav(audioBuffer);
+                        
+                        // 尝试使用lamejs转换为MP3（如果可用）
+                        if (window.lamejs && window.lamejs.Mp3Encoder) {
+                            addMessage('系统', '使用lamejs转换为MP3...', 'system');
+                            const mp3Blob = await convertToMP3WithLame(audioBuffer);
+                            resolve(mp3Blob);
+                        } else {
+                            // 如果没有lamejs，提示用户加载库
+                            addMessage('系统', '⚠️ 未找到lamejs库，无法转换为MP3。请确保已加载lamejs库', 'error');
+                            addMessage('系统', '💡 提示：请在HTML中添加 lamejs 库的 script 标签', 'system');
+                            // 仍然返回WAV作为备选，但API可能不支持
+                            resolve(wavBlob);
+                        }
+                    } catch (error) {
+                        reject(new Error(`音频转换失败: ${error.message}`));
+                    }
+                };
+
+                fileReader.onerror = () => reject(new Error('读取音频文件失败'));
+                fileReader.readAsArrayBuffer(audioBlob);
+            });
+        }
+
+        // 将AudioBuffer转换为WAV格式
+        function audioBufferToWav(buffer) {
+            const length = buffer.length;
+            const numberOfChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const bytesPerSample = 2;
+            const blockAlign = numberOfChannels * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = length * blockAlign;
+            const bufferSize = 44 + dataSize;
+            const arrayBuffer = new ArrayBuffer(bufferSize);
+            const view = new DataView(arrayBuffer);
+
+            // WAV文件头
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, bufferSize - 8, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            // 写入音频数据
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numberOfChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+
+        // 使用lamejs转换为MP3（需要加载lamejs库）
+        async function convertToMP3WithLame(audioBuffer) {
+            const { lamejs } = window;
+            const mp3encoder = new lamejs.Mp3Encoder(
+                audioBuffer.numberOfChannels,
+                audioBuffer.sampleRate,
+                128 // 比特率
+            );
+
+            const samples = [];
+            for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+                samples.push(new Int16Array(audioBuffer.getChannelData(i).map(n => n * 0x7FFF)));
+            }
+
+            const mp3Data = [];
+            const sampleBlockSize = 1152;
+
+            for (let i = 0; i < samples[0].length; i += sampleBlockSize) {
+                const left = samples[0].subarray(i, i + sampleBlockSize);
+                const right = audioBuffer.numberOfChannels > 1 
+                    ? samples[1].subarray(i, i + sampleBlockSize) 
+                    : left;
+                const mp3buf = mp3encoder.encodeBuffer(left, right);
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                }
+            }
+
+            const mp3buf = mp3encoder.flush();
+            if (mp3buf.length > 0) {
+                mp3Data.push(mp3buf);
+            }
+
+            return new Blob(mp3Data, { type: 'audio/mp3' });
+        }
+
+        // 将Blob转换为Base64
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    // 移除data:audio/mp3;base64,前缀，只保留base64字符串
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // 处理音频文件，调用GLM-4-Voice API（语音直连）
+        async function handleAudioBlob(audioBlob, mimeType) {
+            try {
+                state.isProcessing = true;
+                updateStatus('正在处理音频...', 'processing');
+                addMessage('系统', `录音完成 (格式: ${mimeType}, 大小: ${(audioBlob.size / 1024).toFixed(2)} KB)`, 'system');
+
+                // 转换为MP3格式
+                const mp3Blob = await convertToMP3(audioBlob, mimeType);
+                addMessage('系统', `音频转换完成 (大小: ${(mp3Blob.size / 1024).toFixed(2)} KB)`, 'system');
+
+                // 将音频转换为base64编码
+                const base64Audio = await blobToBase64(mp3Blob);
+                addMessage('系统', `Base64编码完成 (长度: ${base64Audio.length})`, 'system');
+                
+                // 检测音频格式（MP3或WAV）
+                const audioFormat = mp3Blob.type.includes('mp3') || mp3Blob.type.includes('mpeg') ? 'mp3' : 'wav';
+                addMessage('系统', `音频格式: ${audioFormat}`, 'system');
+                
+                // 使用官方文档的正确API格式
+                // content是一个数组，包含文本和音频对象
+                // 尝试两种方式：1. 带文本提示（通用指令） 2. 只发送音频（让AI直接理解）
+                // 先尝试只发送音频，不添加文本提示
+                const requestData = {
+                    model: config.model,
+                    temperature: config.temperature,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                // 移除固定的文本提示，让AI直接理解音频内容
+                                // 如果需要添加提示，可以使用更通用的指令，比如：
+                                // { type: 'text', text: '请理解并回答我的语音问题' }
+                                {
+                                    type: 'input_audio',
+                                    input_audio: {
+                                        data: base64Audio,  // base64编码的音频数据
+                                        format: audioFormat  // 'mp3' 或 'wav'
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                };
+
+                if (config.maxTokens !== undefined) {
+                    requestData.max_tokens = config.maxTokens;
+                }
+
+                addMessage('系统', `正在调用GLM-4-Voice API (${config.model})...`, 'system');
+
+                // 调用API
+                const response = await fetch(config.baseUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.apiKey}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    addMessage('错误', `API调用失败 (HTTP ${response.status}): ${errorText}`, 'error');
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+                addMessage('系统', '✅ API调用成功', 'system');
+                
+                // 显示完整的API响应（用于调试）
+                addMessage('系统', 'API完整响应: ' + JSON.stringify(data, null, 2).substring(0, 500) + '...', 'system');
+                
+                // 显示AI响应
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    const aiResponse = data.choices[0].message.content;
+                    addMessage('AI响应', aiResponse, 'ai');
+                    
+                    // 检查是否有音频响应
+                    if (data.choices[0].message.audio) {
+                        addMessage('系统', 'AI返回了音频响应', 'system');
+                    }
+                } else {
+                    addMessage('系统', 'API响应格式: ' + JSON.stringify(data, null, 2), 'system');
+                }
+                
+                updateStatus('处理完成', 'ready');
+            } catch (error) {
+                addMessage('错误', `处理失败: ${error.message}`, 'error');
+                updateStatus('处理失败', 'ready');
+                
+                // 如果是网络错误，提供更详细的提示
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    addMessage('系统', '网络连接失败。请检查：\n1. 网络连接是否正常\n2. 是否能访问 open.bigmodel.cn\n3. API Key是否有效', 'error');
+                }
+            } finally {
+                state.isProcessing = false;
+                if (!state.isRecording) {
+                    updateStatus('就绪 - 点击开始录音', 'ready');
+                }
+            }
+        }
+
+        // 添加消息
+        function addMessage(label, content, type = 'system') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'message-label';
+            labelDiv.textContent = label;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(labelDiv);
+            messageDiv.appendChild(contentDiv);
+            messages.appendChild(messageDiv);
+            
+            // 自动滚动到底部
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // 更新状态
+        function updateStatus(text, className) {
+            status.textContent = text;
+            status.className = `status ${className}`;
+        }
+
+        // 清空消息
+        function clearMessages() {
+            messages.innerHTML = '';
+            addMessage('系统', '消息已清空', 'system');
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+

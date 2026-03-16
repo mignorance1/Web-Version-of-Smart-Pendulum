@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单摆实验教学监控系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            dark: '#1D2129',
+            'dark-light': '#4E5969',
+            'light-gray': '#F2F3F5'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .status-indicator {
+        @apply w-3 h-3 rounded-full inline-block mr-2;
+      }
+      .gradient-bg {
+        @apply bg-gradient-to-br from-primary to-primary/80;
+      }
+    }
+    
+    /* 教案内容样式 */
+    #lesson-content {
+      line-height: 1.8;
+    }
+    
+    #lesson-content h1,
+    #lesson-content h2,
+    #lesson-content h3 {
+      color: #1D2129;
+      font-weight: 600;
+    }
+    
+    #lesson-content p {
+      margin-bottom: 0.75rem;
+      color: #1D2129;
+    }
+    
+    #lesson-content strong {
+      color: #165DFF;
+      font-weight: 600;
+    }
+    
+    #lesson-content code {
+      background-color: #F2F3F5;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-size: 0.875em;
+      color: #165DFF;
+    }
+    
+    #lesson-result-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    #lesson-result-container::-webkit-scrollbar-track {
+      background: #F2F3F5;
+      border-radius: 4px;
+    }
+    
+    #lesson-result-container::-webkit-scrollbar-thumb {
+      background: #165DFF;
+      border-radius: 4px;
+    }
+    
+    #lesson-result-container::-webkit-scrollbar-thumb:hover {
+      background: #0d47a1;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-dark font-sans">
+  <!-- 顶部导航栏 -->
+  <header class="gradient-bg text-white shadow-md fixed top-0 left-0 right-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa fa-flask text-2xl"></i>
+        <h1 class="text-xl md:text-2xl font-bold">单摆数字孪生实验教学系统</h1>
+      </div>
+      
+      <div class="flex items-center space-x-6">
+        <div class="hidden md:flex items-center space-x-1">
+          <i class="fa fa-clock-o"></i>
+          <span id="current-time">--:--:--</span>
+        </div>
+        <div class="hidden md:flex items-center space-x-1">
+          <i class="fa fa-calendar"></i>
+          <span id="current-date">----年--月--日</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <i class="fa fa-user-circle-o text-xl"></i>
+          <span>教师端</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 pt-20 pb-16">
+    <!-- 统计概览 -->
+    <section class="mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <h2 class="text-xl font-bold">实验进度概览</h2>
+        <div class="flex mt-4 md:mt-0 space-x-3">
+          <button id="refresh-btn" class="bg-white border border-primary text-primary px-4 py-2 rounded-lg flex items-center hover:bg-primary/5 transition">
+            <i class="fa fa-refresh mr-2"></i>刷新
+          </button>
+          <button id="add-student-btn" class="bg-primary text-white px-4 py-2 rounded-lg flex items-center hover:bg-primary/90 transition">
+            <i class="fa fa-plus mr-2"></i>添加学生
+          </button>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl shadow p-5 card-hover">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-dark-light text-sm">总学生数</p>
+              <h3 class="text-3xl font-bold mt-1" id="total-students">40</h3>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <i class="fa fa-users"></i>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-dark-light">
+            <span>最后更新: </span>
+            <span id="last-update">刚刚</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-5 card-hover">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-dark-light text-sm">进行中实验</p>
+              <h3 class="text-3xl font-bold mt-1 text-primary" id="ongoing-experiments">12</h3>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <i class="fa fa-play-circle"></i>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-dark-light">
+            <span>占比: </span>
+            <span id="ongoing-percentage">30%</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-5 card-hover">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-dark-light text-sm">已完成实验</p>
+              <h3 class="text-3xl font-bold mt-1 text-success" id="completed-experiments">24</h3>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
+              <i class="fa fa-check-circle"></i>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-dark-light">
+            <span>占比: </span>
+            <span id="completed-percentage">60%</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-5 card-hover">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-dark-light text-sm">未开始实验</p>
+              <h3 class="text-3xl font-bold mt-1 text-dark-light" id="not-started-experiments">4</h3>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-dark-light/10 flex items-center justify-center text-dark-light">
+              <i class="fa fa-pause-circle"></i>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-dark-light">
+            <span>占比: </span>
+            <span id="not-started-percentage">10%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 实验进度图表 -->
+    <section class="mb-8">
+      <h2 class="text-xl font-bold mb-4">班级实验数据统计</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow p-5 card-hover">
+          <h3 class="text-lg font-semibold mb-3">实验状态分布</h3>
+          <div class="h-64">
+            <canvas id="status-chart"></canvas>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-5 card-hover">
+          <h3 class="text-lg font-semibold mb-3">已完成实验组数</h3>
+          <div class="h-64">
+            <canvas id="completed-groups-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- AI生成教案 -->
+    <section class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">AI智能教案生成</h2>
+        <button id="ai-lesson-btn" class="bg-primary text-white px-4 py-2 rounded-lg flex items-center hover:bg-primary/90 transition">
+          <i class="fa fa-magic mr-2"></i>生成教案
+        </button>
+      </div>
+      
+      <div class="bg-white rounded-xl shadow p-5 card-hover">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- 输入区域 -->
+          <div class="lg:col-span-1">
+            <h3 class="text-lg font-semibold mb-3 flex items-center">
+              <i class="fa fa-edit mr-2 text-primary"></i>教案要求
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-dark-light mb-2">课程主题</label>
+                <input type="text" id="lesson-topic" placeholder="例如：单摆实验" 
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-dark-light mb-2">课时时长</label>
+                <select id="lesson-duration" 
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                  <option value="45">45分钟</option>
+                  <option value="90">90分钟</option>
+                  <option value="120">120分钟</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-dark-light mb-2">学生年级</label>
+                <select id="lesson-grade" 
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                  <option value="高中一年级">高中一年级</option>
+                  <option value="高中二年级">高中二年级</option>
+                  <option value="高中三年级">高中三年级</option>
+                  <option value="大学一年级">大学一年级</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-dark-light mb-2">重点内容</label>
+                <textarea id="lesson-focus" rows="3" placeholder="例如：理解单摆周期公式、掌握实验操作流程..."
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none"></textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-dark-light mb-2">特殊要求（可选）</label>
+                <textarea id="lesson-requirements" rows="2" placeholder="例如：需要包含互动环节、强调数据分析..."
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 生成结果区域 -->
+          <div class="lg:col-span-2">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-lg font-semibold flex items-center">
+                <i class="fa fa-file-text-o mr-2 text-primary"></i>生成的教案
+              </h3>
+              <div class="flex space-x-2">
+                <button id="copy-lesson-btn" class="px-3 py-1 text-sm border border-primary text-primary rounded-lg hover:bg-primary/5 transition hidden">
+                  <i class="fa fa-copy mr-1"></i>复制
+                </button>
+                <button id="download-lesson-btn" class="px-3 py-1 text-sm border border-primary text-primary rounded-lg hover:bg-primary/5 transition hidden">
+                  <i class="fa fa-download mr-1"></i>下载
+                </button>
+              </div>
+            </div>
+            
+            <div id="lesson-result-container" class="bg-light-gray rounded-lg p-4 h-[500px] overflow-y-auto border border-gray-200">
+              <div id="lesson-placeholder" class="flex flex-col items-center justify-center h-full text-dark-light">
+                <i class="fa fa-file-text-o text-6xl mb-4 opacity-30"></i>
+                <p class="text-lg mb-2">等待生成教案</p>
+                <p class="text-sm text-center max-w-xs">请填写左侧信息，点击"生成教案"按钮开始生成</p>
+              </div>
+              <div id="lesson-content" class="hidden prose prose-sm max-w-none">
+                <!-- 教案内容将在这里显示 -->
+              </div>
+              <div id="lesson-loading" class="hidden flex flex-col items-center justify-center h-full">
+                <div class="flex space-x-2 mb-4">
+                  <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0s;"></div>
+                  <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                  <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+                </div>
+                <p class="text-dark-light">AI正在生成教案，请稍候...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 学生列表 -->
+    <section>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">学生实验进度</h2>
+        <div class="relative">
+          <input type="text" placeholder="搜索学生..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+          <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-light-gray">
+                <th class="px-6 py-3 text-left text-xs font-medium text-dark-light uppercase tracking-wider">序号</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-dark-light uppercase tracking-wider">学生姓名</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-dark-light uppercase tracking-wider">实验状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-dark-light uppercase tracking-wider">已完成组数</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-dark-light uppercase tracking-wider">最后活动时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-dark-light uppercase tracking-wider">平均周期</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-dark-light uppercase tracking-wider">操作</th>
+              </tr>
+            </thead>
+            <tbody id="students-table-body" class="divide-y divide-gray-200">
+              <!-- 学生数据将通过JS动态生成 -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="px-6 py-3 bg-light-gray flex items-center justify-between border-t border-gray-200">
+          <div class="text-sm text-dark-light">
+            显示 <span id="showing-range">1-20</span> 条，共 <span id="total-count">40</span> 条
+          </div>
+          <div class="flex space-x-2">
+            <button class="px-3 py-1 border border-gray-300 rounded bg-white text-dark-light hover:bg-gray-50 disabled:opacity-50" disabled>
+              <i class="fa fa-chevron-left"></i>
+            </button>
+            <button class="px-3 py-1 border border-primary bg-primary text-white rounded">1</button>
+            <button class="px-3 py-1 border border-gray-300 rounded bg-white text-dark-light hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 border border-gray-300 rounded bg-white text-dark-light hover:bg-gray-50">
+              <i class="fa fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- 添加/编辑学生模态框 -->
+  <div id="student-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 transform transition-all">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold" id="modal-title">添加学生</h3>
+        <button id="close-modal" class="text-dark-light hover:text-dark">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="student-form">
+        <input type="hidden" id="student-id">
+        <div class="mb-4">
+          <label for="student-name" class="block text-sm font-medium text-dark-light mb-1">学生姓名</label>
+          <input type="text" id="student-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+          <button type="button" id="cancel-modal" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">取消</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- 学生详情模态框 -->
+  <div id="student-detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold" id="detail-student-name">学生详情</h3>
+        <button id="close-detail-modal" class="text-dark-light hover:text-dark">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h4 class="text-lg font-semibold mb-3">实验基本信息</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-dark-light">当前状态</span>
+              <span id="detail-status" class="font-medium">进行中</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-dark-light">已完成实验组数</span>
+              <span id="detail-completed-groups" class="font-medium">3组</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-dark-light">开始时间</span>
+              <span id="detail-start-time" class="font-medium">2023-06-15 09:30:22</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-dark-light">最后操作时间</span>
+              <span id="detail-last-operation" class="font-medium">2023-06-15 10:15:47</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-dark-light">平均重力加速度</span>
+              <span id="detail-average-g" class="font-medium">9.78 m/s²</span>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-3">最近实验数据</h4>
+          <div class="bg-light-gray rounded-lg p-4 h-64 overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-200">
+                  <th class="text-left pb-2">实验编号</th>
+                  <th class="text-left pb-2">摆长(cm)</th>
+                  <th class="text-left pb-2">周期(s)</th>
+                </tr>
+              </thead>
+              <tbody id="detail-recent-experiments">
+                <!-- 最近实验数据将通过JS动态生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="md:col-span-2">
+          <h4 class="text-lg font-semibold mb-3">周期-摆长关系图</h4>
+          <div class="h-72">
+            <canvas id="student-tl-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // AI教案生成配置
+    const aiLessonConfig = {
+      apiKey: '填入你的apikey',
+      baseUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+      model: 'glm-4.5-flash',
+      temperature: 0.7
+    };
+
+    // AI生成教案功能
+    async function generateLesson() {
+      const topic = document.getElementById('lesson-topic').value.trim();
+      const duration = document.getElementById('lesson-duration').value;
+      const grade = document.getElementById('lesson-grade').value;
+      const focus = document.getElementById('lesson-focus').value.trim();
+      const requirements = document.getElementById('lesson-requirements').value.trim();
+
+      if (!topic) {
+        alert('请输入课程主题');
+        return;
+      }
+
+      // 显示加载状态
+      document.getElementById('lesson-placeholder').classList.add('hidden');
+      document.getElementById('lesson-content').classList.add('hidden');
+      document.getElementById('lesson-loading').classList.remove('hidden');
+      document.getElementById('lesson-loading').classList.add('flex');
+      document.getElementById('ai-lesson-btn').disabled = true;
+      document.getElementById('copy-lesson-btn').classList.add('hidden');
+      document.getElementById('download-lesson-btn').classList.add('hidden');
+
+      // 构建提示词
+      let prompt = `请为${grade}学生生成一份关于"${topic}"的详细教案，课时时长为${duration}分钟。
+
+要求：
+1. 教案应包含：教学目标、教学重点难点、教学准备、教学过程、课堂小结、作业布置等完整环节
+2. 教学过程要详细，包含时间分配和具体教学步骤
+3. 要结合单摆数字孪生实验系统的特点，充分利用数字化实验设备
+4. 教学语言要适合${grade}学生的认知水平`;
+
+      if (focus) {
+        prompt += `\n5. 重点内容：${focus}`;
+      }
+
+      if (requirements) {
+        prompt += `\n6. 特殊要求：${requirements}`;
+      }
+
+      prompt += `\n\n请以结构化的格式输出教案，使用清晰的标题和分段，便于阅读和使用。`;
+
+      try {
+        const response = await fetch(aiLessonConfig.baseUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${aiLessonConfig.apiKey}`
+          },
+          body: JSON.stringify({
+            model: aiLessonConfig.model,
+            temperature: aiLessonConfig.temperature,
+            messages: [
+              {
+                role: 'system',
+                content: '你是一位经验丰富的物理教师，擅长编写结构清晰、内容详实的实验教学教案。'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ]
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const lessonText = data.choices[0].message.content;
+
+        // 显示结果
+        document.getElementById('lesson-loading').classList.add('hidden');
+        document.getElementById('lesson-loading').classList.remove('flex');
+        document.getElementById('lesson-content').classList.remove('hidden');
+        document.getElementById('lesson-content').innerHTML = formatLessonText(lessonText);
+        document.getElementById('copy-lesson-btn').classList.remove('hidden');
+        document.getElementById('download-lesson-btn').classList.remove('hidden');
+        document.getElementById('lesson-content').dataset.rawText = lessonText;
+
+      } catch (error) {
+        console.error('生成教案失败:', error);
+        document.getElementById('lesson-loading').classList.add('hidden');
+        document.getElementById('lesson-loading').classList.remove('flex');
+        document.getElementById('lesson-placeholder').classList.remove('hidden');
+        alert('生成教案失败，请稍后重试。错误信息：' + error.message);
+      } finally {
+        document.getElementById('ai-lesson-btn').disabled = false;
+      }
+    }
+
+    // 格式化教案文本
+    function formatLessonText(text) {
+      // 将文本转换为HTML格式，保留换行和基本格式
+      let html = text
+        // 处理标题（必须在其他替换之前）
+        .replace(/^###\s+(.*)$/gm, '<h3 class="text-lg font-semibold mt-4 mb-2 text-dark">$1</h3>')
+        .replace(/^##\s+(.*)$/gm, '<h2 class="text-xl font-bold mt-4 mb-3 text-dark">$1</h2>')
+        .replace(/^#\s+(.*)$/gm, '<h1 class="text-2xl font-bold mt-4 mb-3 text-dark">$1</h1>')
+        // 处理粗体和斜体
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary font-semibold">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // 处理有序列表
+        .replace(/^(\d+)\.\s+(.*)$/gm, '<div class="mb-2 ml-2"><span class="font-semibold text-primary">$1. </span><span>$2</span></div>')
+        // 处理无序列表
+        .replace(/^[-•]\s+(.*)$/gm, '<div class="mb-1 ml-4">• $1</div>')
+        // 处理段落分隔
+        .split('\n\n')
+        .map(para => {
+          para = para.trim();
+          if (!para) return '';
+          // 如果已经是标题或列表，直接返回
+          if (para.startsWith('<h') || para.startsWith('<div')) {
+            return para;
+          }
+          return '<p class="mb-3 text-dark leading-relaxed">' + para.replace(/\n/g, '<br>') + '</p>';
+        })
+        .filter(p => p)
+        .join('');
+
+      return '<div class="text-dark">' + html + '</div>';
+    }
+
+    // 复制教案
+    function copyLesson() {
+      const rawText = document.getElementById('lesson-content').dataset.rawText;
+      if (rawText) {
+        navigator.clipboard.writeText(rawText).then(() => {
+          const btn = document.getElementById('copy-lesson-btn');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fa fa-check mr-1"></i>已复制';
+          btn.classList.add('bg-success', 'text-white', 'border-success');
+          btn.classList.remove('border-primary', 'text-primary');
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('bg-success', 'text-white', 'border-success');
+            btn.classList.add('border-primary', 'text-primary');
+          }, 2000);
+        }).catch(err => {
+          console.error('复制失败:', err);
+          alert('复制失败，请手动选择文本复制');
+        });
+      }
+    }
+
+    // 下载教案
+    function downloadLesson() {
+      const rawText = document.getElementById('lesson-content').dataset.rawText;
+      const topic = document.getElementById('lesson-topic').value.trim() || '教案';
+      if (rawText) {
+        const blob = new Blob([rawText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${topic}_教案_${new Date().toISOString().slice(0, 10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    // 模拟学生数据
+    const students = Array.from({length: 40}, (_, i) => ({
+      id: i + 1,
+      name: `学生${i + 1}`,
+      status: ['未开始', '进行中', '已完成'][Math.floor(Math.random() * 3)],
+      completedGroups: Math.floor(Math.random() * 5),
+      lastActive: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toLocaleTimeString(),
+      averagePeriod: (1.5 + Math.random() * 1).toFixed(2)
+    }));
+    
+    // 状态样式映射
+    const statusStyles = {
+      '未开始': { class: 'bg-dark-light/20 text-dark-light', indicator: 'bg-dark-light' },
+      '进行中': { class: 'bg-primary/20 text-primary', indicator: 'bg-primary' },
+      '已完成': { class: 'bg-success/20 text-success', indicator: 'bg-success' }
+    };
+    
+    // 渲染学生表格
+    function renderStudentsTable() {
+      const tableBody = document.getElementById('students-table-body');
+      tableBody.innerHTML = '';
+      
+      students.forEach((student, index) => {
+        const style = statusStyles[student.status];
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition';
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">${student.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap font-medium">${student.name}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${style.class}">
+              <span class="status-indicator ${style.indicator}"></span>
+              ${student.status}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">${student.completedGroups}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-dark-light">${student.lastActive}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${student.averagePeriod} s</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex space-x-2">
+              <button class="text-primary hover:text-primary/80 view-detail" data-id="${student.id}">
+                <i class="fa fa-eye"></i>
+              </button>
+              <button class="text-dark-light hover:text-dark edit-student" data-id="${student.id}">
+                <i class="fa fa-pencil"></i>
+              </button>
+              <button class="text-danger hover:text-danger/80 delete-student" data-id="${student.id}">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      // 添加事件监听
+      document.querySelectorAll('.view-detail').forEach(btn => {
+        btn.addEventListener('click', () => showStudentDetail(btn.dataset.id));
+      });
+      
+      document.querySelectorAll('.edit-student').forEach(btn => {
+        btn.addEventListener('click', () => editStudent(btn.dataset.id));
+      });
+      
+      document.querySelectorAll('.delete-student').forEach(btn => {
+        btn.addEventListener('click', () => deleteStudent(btn.dataset.id));
+      });
+    }
+    
+    // 更新统计数据
+    function updateStatistics() {
+      const total = students.length;
+      const ongoing = students.filter(s => s.status === '进行中').length;
+      const completed = students.filter(s => s.status === '已完成').length;
+      const notStarted = students.filter(s => s.status === '未开始').length;
+      
+      document.getElementById('total-students').textContent = total;
+      document.getElementById('ongoing-experiments').textContent = ongoing;
+      document.getElementById('completed-experiments').textContent = completed;
+      document.getElementById('not-started-experiments').textContent = notStarted;
+      
+      document.getElementById('ongoing-percentage').textContent = `${Math.round(ongoing/total*100)}%`;
+      document.getElementById('completed-percentage').textContent = `${Math.round(completed/total*100)}%`;
+      document.getElementById('not-started-percentage').textContent = `${Math.round(notStarted/total*100)}%`;
+      
+      document.getElementById('total-count').textContent = total;
+      
+      updateCharts();
+    }
+    
+    // 更新图表
+    function updateCharts() {
+      // 状态分布图表
+      const statusCtx = document.getElementById('status-chart').getContext('2d');
+      new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['未开始', '进行中', '已完成'],
+          datasets: [{
+            data: [
+              students.filter(s => s.status === '未开始').length,
+              students.filter(s => s.status === '进行中').length,
+              students.filter(s => s.status === '已完成').length
+            ],
+            backgroundColor: ['#4E5969', '#165DFF', '#52C41A'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          },
+          cutout: '70%'
+        }
+      });
+      
+      // 已完成组数图表
+      const completedCtx = document.getElementById('completed-groups-chart').getContext('2d');
+      const groupData = Array(6).fill(0);
+      students.forEach(s => {
+        if (s.completedGroups >= 5) groupData[5]++;
+        else groupData[s.completedGroups]++;
+      });
+      
+      new Chart(completedCtx, {
+        type: 'bar',
+        data: {
+          labels: ['0组', '1组', '2组', '3组', '4组', '5组以上'],
+          datasets: [{
+            label: '学生数量',
+            data: groupData,
+            backgroundColor: '#165DFF',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // 显示学生详情
+    function showStudentDetail(id) {
+      const student = students.find(s => s.id == id);
+      if (!student) return;
+      
+      document.getElementById('detail-student-name').textContent = `${student.name} 的实验详情`;
+      document.getElementById('detail-status').textContent = student.status;
+      document.getElementById('detail-completed-groups').textContent = `${student.completedGroups}组`;
+      
+      // 生成最近实验数据
+      const experimentsContainer = document.getElementById('detail-recent-experiments');
+      experimentsContainer.innerHTML = '';
+      
+      for (let i = 1; i <= Math.min(5, student.completedGroups); i++) {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-100 last:border-0';
+        tr.innerHTML = `
+          <td class="py-2">${i}</td>
+          <td class="py-2">${(50 + Math.random() * 50).toFixed(1)}</td>
+          <td class="py-2">${(1.5 + Math.random() * 1).toFixed(2)}</td>
+        `;
+        experimentsContainer.appendChild(tr);
+      }
+      
+      // 生成周期-摆长关系图
+      const tlCtx = document.getElementById('student-tl-chart').getContext('2d');
+      const dataCount = Math.max(3, student.completedGroups);
+      const lData = Array.from({length: dataCount}, () => 50 + Math.random() * 50);
+      const tData = lData.map(l => 1.1 * Math.sqrt(l / 100 / 9.8) * 2); // 基于单摆周期公式的模拟数据
+      
+      new Chart(tlCtx, {
+        type: 'scatter',
+        data: {
+          datasets: [{
+            label: '周期-摆长关系',
+            data: lData.map((l, i) => ({x: l, y: tData[i]})),
+            backgroundColor: '#165DFF',
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '摆长 (cm)'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: '周期 (s)'
+              }
+            }
+          }
+        }
+      });
+      
+      // 显示模态框
+      document.getElementById('student-detail-modal').classList.remove('hidden');
+      document.getElementById('student-detail-modal').classList.add('flex');
+    }
+    
+    // 编辑学生
+    function editStudent(id) {
+      const student = students.find(s => s.id == id);
+      if (!student) return;
+      
+      document.getElementById('modal-title').textContent = '编辑学生';
+      document.getElementById('student-id').value = student.id;
+      document.getElementById('student-name').value = student.name;
+      
+      // 显示模态框
+      document.getElementById('student-modal').classList.remove('hidden');
+      document.getElementById('student-modal').classList.add('flex');
+    }
+    
+    // 删除学生
+    function deleteStudent(id) {
+      if (confirm('确定要删除该学生吗？')) {
+        const index = students.findIndex(s => s.id == id);
+        if (index !== -1) {
+          students.splice(index, 1);
+          renderStudentsTable();
+          updateStatistics();
+        }
+      }
+    }
+    
+    // 初始化日期时间显示
+    function initDateTime() {
+      function updateDateTime() {
+        const now = new Date();
+        document.getElementById('current-time').textContent = now.toLocaleTimeString();
+        document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      
+      updateDateTime();
+      setInterval(updateDateTime, 1000);
+    }
+    
+    // 事件监听
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化页面
+      renderStudentsTable();
+      updateStatistics();
+      initDateTime();
+      
+      // 添加学生按钮
+      document.getElementById('add-student-btn').addEventListener('click', () => {
+        document.getElementById('modal-title').textContent = '添加学生';
+        document.getElementById('student-form').reset();
+        document.getElementById('student-id').value = '';
+        
+        // 显示模态框
+        document.getElementById('student-modal').classList.remove('hidden');
+        document.getElementById('student-modal').classList.add('flex');
+      });
+      
+      // 关闭模态框
+      document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('student-modal').classList.add('hidden');
+        document.getElementById('student-modal').classList.remove('flex');
+      });
+      
+      document.getElementById('cancel-modal').addEventListener('click', () => {
+        document.getElementById('student-modal').classList.add('hidden');
+        document.getElementById('student-modal').classList.remove('flex');
+      });
+      
+      // 关闭详情模态框
+      document.getElementById('close-detail-modal').addEventListener('click', () => {
+        document.getElementById('student-detail-modal').classList.add('hidden');
+        document.getElementById('student-detail-modal').classList.remove('flex');
+      });
+      
+      // 表单提交
+      document.getElementById('student-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('student-id').value;
+        const name = document.getElementById('student-name').value.trim();
+        
+        if (name) {
+          if (id) {
+            // 编辑现有学生
+            const student = students.find(s => s.id == id);
+            if (student) {
+              student.name = name;
+            }
+          } else {
+            // 添加新学生
+            const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+            students.push({
+              id: newId,
+              name: name,
+              status: '未开始',
+              completedGroups: 0,
+              lastActive: '从未',
+              averagePeriod: '0.00'
+            });
+          }
+          
+          // 刷新表格和统计
+          renderStudentsTable();
+          updateStatistics();
+          
+          // 关闭模态框
+          document.getElementById('student-modal').classList.add('hidden');
+          document.getElementById('student-modal').classList.remove('flex');
+        }
+      });
+      
+      // AI生成教案按钮
+      document.getElementById('ai-lesson-btn').addEventListener('click', generateLesson);
+      
+      // 复制教案按钮
+      document.getElementById('copy-lesson-btn').addEventListener('click', copyLesson);
+      
+      // 下载教案按钮
+      document.getElementById('download-lesson-btn').addEventListener('click', downloadLesson);
+      
+      // 刷新按钮
+      document.getElementById('refresh-btn').addEventListener('click', () => {
+        // 模拟数据刷新
+        const refreshBtn = document.getElementById('refresh-btn');
+        const originalHtml = refreshBtn.innerHTML;
+        refreshBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>刷新中...';
+        refreshBtn.disabled = true;
+        
+        setTimeout(() => {
+          // 随机更新一些学生状态
+          students.forEach(student => {
+            if (Math.random() > 0.7) {
+              if (student.status === '未开始' && Math.random() > 0.5) {
+                student.status = '进行中';
+              } else if (student.status === '进行中' && Math.random() > 0.5) {
+                student.status = '已完成';
+                student.completedGroups++;
+              }
+              student.lastActive = new Date().toLocaleTimeString();
+            }
+          });
+          
+          renderStudentsTable();
+          updateStatistics();
+          refreshBtn.innerHTML = originalHtml;
+          refreshBtn.disabled = false;
+          document.getElementById('last-update').textContent = '刚刚';
+        }, 800);
+      });
+    });
+  </script>
+</body>
+</html>
